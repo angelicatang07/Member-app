@@ -93,7 +93,6 @@ function DashboardScreen({ navigation }) {
           </TouchableWithoutFeedback>
         </View>
       </View>
-      <CustomButton text="Sign Out" onPress={handleSignOut} type="PRIMARY" />
     </Screen>
   )
 };
