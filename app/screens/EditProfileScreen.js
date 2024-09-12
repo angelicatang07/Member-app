@@ -1,6 +1,9 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import * as Yup from 'yup';
+import { updateProfile, updateEmail } from 'firebase/auth';
+import { ref, set } from 'firebase/database'; 
+import { auth, db } from '../navigation/firebase'; 
 
 import AppForm from '../components/AppForm';
 import AppFormField from '../components/AppFormField';
@@ -19,6 +22,29 @@ const validationSchema = Yup.object().shape({
 });
 
 function EditProfileScreen(props) {
+  const handleSubmit = async (values) => {
+    const { name, email, country, gender } = values;
+    const user = auth.currentUser;
+
+    if (user) {
+      try {
+        await updateProfile(user, { displayName: name });
+        await updateEmail(user, email);
+
+        set(ref(db, 'users/' + user.uid), {
+          country,
+          gender,
+        });
+
+        console.log('Profile updated successfully!');
+      } catch (error) {
+        console.log('Error updating profile: ', error);
+      }
+    } else {
+      console.log('No user is logged in');
+    }
+  };
+
   return (
     <Screen style={styles.screen}>
       <AppForm
@@ -29,20 +55,19 @@ function EditProfileScreen(props) {
           gender: '',
         }}
         validationSchema={validationSchema}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={handleSubmit}
       >
         <AppFormField
           autoCapitalize="none"
           name={'name'}
           placeholder="Full Name"
         />
-        {/* Add first name and last name */}
         <AppFormField
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
           name="email"
-          placeholder="Email-address"
+          placeholder="Email address"
           textContentType="emailAddress"
         />
         <AppFormPicker

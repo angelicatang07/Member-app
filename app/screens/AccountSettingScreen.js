@@ -1,20 +1,34 @@
-import React from 'react';
-
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-
 import AppImagePicker from '../components/AppImagePicker';
 import MenuButton from '../components/MenuButton';
 import Screen from '../components/Screen';
 
+import { auth } from '../navigation/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+
 function AccountSettingScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const email = user ? user.email : "None";
+  const name = user ? user.displayName : "No name given";  // the exception doesn't seem to ever occur
+
   return (
     <Screen style={styles.screen}>
       <AppImagePicker width={200} height={200}>
-        <Text>Please</Text>
+        <Text>Please</Text>  {/* This is to make a profile picture. It's currently incomplete. */}
       </AppImagePicker>
       <View style={styles.detailsContainer}>
-        <Text style={styles.text}>Full Name</Text>
-        <Text style={styles.text}>Email address</Text>
+        <Text style={styles.text}>Full Name: {name}</Text>
+        <Text style={styles.text}>Email address: {email}</Text>
       </View>
       <MenuButton
         text={'Reset Password'}
