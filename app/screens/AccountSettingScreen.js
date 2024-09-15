@@ -24,7 +24,7 @@ function AccountSettingScreen({ navigation }) {
   return (
     <Screen style={styles.screen}>
       <AppImagePicker width={200} height={200}>
-        <Text>Please</Text>  {/* This is to make a profile picture. It's currently incomplete. */}
+        <Text>Please</Text>  {/* This is to make a profile picture. It's currently incomplete.*/}
       </AppImagePicker>
       <View style={styles.detailsContainer}>
         <Text style={styles.text}>Full Name: {name}</Text>

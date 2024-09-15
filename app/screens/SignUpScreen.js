@@ -8,12 +8,13 @@ import Logo from '../assets/stemeLogo.png';
 import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
 import { auth, db } from '../navigation/firebase';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
+  fullName: Yup.string().required().label('Full Name'),
   email: Yup.string().required().email().label('Email'),
   password: Yup.string().required().min(6).label('Password'),
   confirmPassword: Yup.string()
@@ -31,15 +32,16 @@ function SignUpScreen({ navigation }) {
       profile_picture: imageUrl,
     });
   };
-  const handleSignUp = async (email, password) => {
+
+  const handleSignUp = async (fullName, email, password) => {
     try {
-      const { user } = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      // Registering a user to the database
-      writeUserData(user.uid, 'N/A', email, '#');
+      const { user } = await createUserWithEmailAndPassword(auth, email, password);
+  
+      await updateProfile(user, {
+        displayName: fullName,
+      });
+  
+      writeUserData(user.uid, fullName, email, '#');
     } catch (error) {
       console.log(error.message);
     }
@@ -52,10 +54,17 @@ function SignUpScreen({ navigation }) {
       </View>
       <View style={styles.container}>
         <AppForm
-          initialValues={{ email: '', password: '', confirmPassword: '' }}
-          onSubmit={({ email, password }) => handleSignUp(email, password)}
+          initialValues={{ fullName: '', email: '', password: '', confirmPassword: '' }}
+          onSubmit={({ fullName, email, password }) => handleSignUp(fullName, email, password)}
           validationSchema={validationSchema}
         >
+          <AppFormField
+            autoCapitalize="words"
+            autoCorrect={false}
+            name="fullName"
+            placeholder="Full Name"
+            width="100%"
+          />
           <AppFormField
             autoCapitalize="none"
             autoCorrect={false}
@@ -63,7 +72,7 @@ function SignUpScreen({ navigation }) {
             name="email"
             placeholder="Email"
             textContentType="emailAddress"
-            width='100%'
+            width="100%"
           />
           <AppFormField
             autoCapitalize="none"
@@ -72,7 +81,7 @@ function SignUpScreen({ navigation }) {
             placeholder="Password"
             secureTextEntry
             textContentType="password"
-            width='100%'
+            width="100%"
           />
           <AppFormField
             autoCapitalize="none"
@@ -81,7 +90,7 @@ function SignUpScreen({ navigation }) {
             placeholder="Re-type Password"
             secureTextEntry
             textContentType="password"
-            width='100%'
+            width="100%"
           />
           <SubmitButton text={'SIGN UP'} />
         </AppForm>

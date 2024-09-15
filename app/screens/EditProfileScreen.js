@@ -11,57 +11,107 @@ import AppFormPicker from '../components/AppFormPicker';
 import Screen from '../components/Screen';
 import countryList from '../components/countries';
 import SubmitButton from '../components/submitButton';
+import Toast from 'react-native-toast-message';
 
 const gender = ['Male', 'Female', 'Decline to answer'];
 
-const validationSchema = Yup.object().shape({
+const nameSchema = Yup.object().shape({
   name: Yup.string().required().label('Name'),
+});
+
+const emailSchema = Yup.object().shape({
   email: Yup.string().email().required().label('Email'),
+});
+
+const countrySchema = Yup.object().shape({
   country: Yup.string().required().label('Country'),
+});
+
+const genderSchema = Yup.object().shape({
   gender: Yup.string().required().label('Gender'),
 });
 
 function EditProfileScreen(props) {
-  const handleSubmit = async (values) => {
-    const { name, email, country, gender } = values;
-    const user = auth.currentUser;
+  const user = auth.currentUser;
 
+  const showToast = (message, type) => {
+    Toast.show({
+      type,
+      position: 'top',
+      text1: message,
+      visibilityTime: 4000,
+    });
+  };
+
+  const handleNameSubmit = async (values) => {
+    const { name } = values;
     if (user) {
       try {
         await updateProfile(user, { displayName: name });
-        await updateEmail(user, email);
-
-        set(ref(db, 'users/' + user.uid), {
-          country,
-          gender,
-        });
-
-        console.log('Profile updated successfully!');
+        showToast('Success! Reload to see your new name.', 'success');
       } catch (error) {
-        console.log('Error updating profile: ', error);
+        showToast('Error updating name: ' + error.message, 'error');
       }
-    } else {
-      console.log('No user is logged in');
+    }
+  };
+
+  const handleEmailSubmit = async (values) => {
+    const { email } = values;
+    if (user) {
+      showToast('Email cannot be updated at this time', 'error')
+      /*
+      might remove this
+      try {
+        await updateEmail(user, email);
+        showToast('Email updated successfully!', 'success');
+      } catch (error) {
+        showToast('Error updating email: ' + error.message, 'error');
+      }
+        */
+    }
+  };
+
+  const handleCountrySubmit = async (values) => {
+    const { country } = values;
+    if (user) {
+      try {
+        await set(ref(db, 'users/' + user.uid + '/country'), country);
+        showToast('Country updated successfully!', 'success');
+      } catch (error) {
+        showToast('Error updating country: ' + error.message, 'error');
+      }
+    }
+  };
+  console.log(user.country, user.gender);
+
+  const handleGenderSubmit = async (values) => {
+    const { gender } = values;
+    if (user) {
+      try {
+        await set(ref(db, 'users/' + user.uid + '/gender'), gender);
+        showToast('Gender updated successfully!', 'success');
+      } catch (error) {
+        showToast('Error updating gender: ' + error.message, 'error');
+      }
     }
   };
 
   return (
     <Screen style={styles.screen}>
       <AppForm
-        initialValues={{
-          name: '',
-          email: '',
-          country: '',
-          gender: '',
-        }}
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
+        initialValues={{ name: user.displayName }} 
+        validationSchema={nameSchema}
+        onSubmit={handleNameSubmit}
       >
-        <AppFormField
-          autoCapitalize="none"
-          name={'name'}
-          placeholder="Full Name"
-        />
+        <AppFormField autoCapitalize="none" name="name" placeholder="Full Name" />
+        <SubmitButton text={'Update Name'} />
+      </AppForm>
+
+      <AppForm
+        initialValues={{ email: user.email }}  
+        validationSchema={emailSchema}
+        onSubmit={handleEmailSubmit}
+      >
         <AppFormField
           autoCapitalize="none"
           autoCorrect={false}
@@ -70,14 +120,29 @@ function EditProfileScreen(props) {
           placeholder="Email address"
           textContentType="emailAddress"
         />
-        <AppFormPicker
-          name={'country'}
-          items={countryList}
-          placeholder={'Country'}
-        />
-        <AppFormPicker name={'gender'} items={gender} placeholder={'Gender'} />
-        <SubmitButton text={'SAVE'} />
+        <SubmitButton text={'Update Email'} />
       </AppForm>
+
+      <AppForm
+        initialValues={{ country: user.country }}  
+        validationSchema={countrySchema}
+        onSubmit={handleCountrySubmit}
+      >
+        <AppFormPicker name="country" items={countryList} placeholder="Country" />
+        <SubmitButton text={'Update Country'} />
+      </AppForm>
+
+      <AppForm
+        initialValues={{ gender: user.gender }}
+        validationSchema={genderSchema}
+        onSubmit={handleGenderSubmit}
+      >
+        <AppFormPicker name="gender" items={gender} placeholder="Gender" />
+        <SubmitButton text={'Update Gender'} />
+      </AppForm>
+
+      <Toast ref={(ref) => Toast.setRef(ref)} />
+        
     </Screen>
   );
 }
