@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  Image,
-  useWindowDimensions,
-  TouchableWithoutFeedback,
-} from 'react-native';
-
+import { Text, View, StyleSheet, Image, useWindowDimensions, TouchableWithoutFeedback, Alert } from 'react-native';
 import Screen from '../components/Screen';
 import TempProfilePhoto from '../assets/tempProfilePhoto.png';
 import BadgesLogo from '../assets/badgesLogo.png';
 import RankLogo from '../assets/RankLogo.png';
 import PlanetLogo from '../assets/PlanetLogo.png';
 import CustomButton from '../components/customButton';
-import {auth} from '../navigation/firebase';
-import {signOut} from 'firebase/auth';
+import { auth } from '../navigation/firebase';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import pointsCheck from '../components/PointsCheck';
+import { fetchProfilePicture } from '../components/profilePictureUtils';
 
 function DashboardScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+
   const handleSignOut = async () => {
     await signOut(auth);
     navigation.navigate('SignIn');
   };
 
-  const {height} = useWindowDimensions();
+  const { height } = useWindowDimensions();
 
   const [points, setPoints] = useState(null);
 
@@ -33,23 +29,51 @@ function DashboardScreen({ navigation }) {
       const _points = await pointsCheck();
       setPoints(_points ? _points : 0);
     };
-  
-    setInterval(() => {
-      checkPoints();
-    }, 1000);
+
+    const fetchProfilePic = async () => {
+      try {
+        const url = await fetchProfilePicture();
+        setProfilePicture(url);
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        Alert.alert('Error', 'Failed to load profile picture.');
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        fetchProfilePic();
+      } else {
+        setProfilePicture(null); // Reset profile picture if not authenticated
+      }
+    });
+
+    checkPoints();
+    return () => unsubscribe();
   }, []);
+
+  const name = user?.displayName || 'Guest';
 
   return (
     <Screen>
       <View style={styles.header}>
-        <Text style={[styles.text,{fontSize: 25}]}> {'John Doe'} </Text>
+        <Text style={[styles.text,{fontSize: 25}]}> {name} </Text>
         <Text style={[styles.text,{fontSize: 25}]}> {'Dashboard'} </Text>
         <TouchableWithoutFeedback
           onPress={() => navigation.navigate('Settings')}
         >
           <Image
-            source={TempProfilePhoto}
-            style={[styles.profilePicture, { height: height * 0.08 }, { width: height * 0.08 }, { borderRadius: height * 0.045 },]}
+          source={
+            profilePicture
+              ? { uri: profilePicture } // Use fetched profile picture URL
+              : require('../assets/tempProfilePhoto.png') // Fallback to default image
+          }
+          onError={(error) => {
+            console.error('Image load error: ', error.nativeEvent.error);
+            setProfilePicture(null); // Reset if the image fails to load
+          }}   
+          style={[styles.profilePicture, { height: height * 0.08 }, { width: height * 0.08 }, { borderRadius: height * 0.045 },]}
           />
         </TouchableWithoutFeedback>
       </View>

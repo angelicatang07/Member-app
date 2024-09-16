@@ -1,13 +1,41 @@
-import React, {useState, useCallback, useMemo, setState} from 'react';
+import React, {useState, useCallback, useMemo, setState, useEffect} from 'react';
 import { View, Text, Image, Button, StyleSheet, TouchableOpacity, useWindowDimensions, ScrollView, TouchableWithoutFeedback} from 'react-native';
 import {Calendar, CalendarUtils, CalendarList, CalendarProvider, LocaleConfig} from 'react-native-calendars';
 import Screen from '../components/Screen';
 import TempProfilePhoto from '../assets/tempProfilePhoto.png';
-
-
+import { auth } from '../navigation/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { fetchProfilePicture } from '../components/profilePictureUtils';
 
 const CalendarScreen = ({ navigation, props }) => {
-  
+  const [user, setUser] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      try {
+        const url = await fetchProfilePicture();
+        setProfilePicture(url);
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        Alert.alert('Error', 'Failed to load profile picture.');
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        fetchProfilePic();
+      } else {
+        setProfilePicture(null); // Reset profile picture if not authenticated
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const name = user ? user.displayName : "No name given"; 
+
   LocaleConfig.locales['en'] = {
     monthNames: [
       'January',
@@ -60,11 +88,17 @@ const CalendarScreen = ({ navigation, props }) => {
   return (
     <Screen style={styles.screen}>
       <View style={[{position: 'absolute'}, {marginTop: 21}, {marginRight: 23}, {right: 0}, {height: height*0.075}, {width: height*0.075}, {borderRadius: height * (0.095/2)}, styles.profilePictureBorder]}>
-        <Image source = {TempProfilePhoto} style ={[styles.profilePicture, {height: height * 0.062}, {width: height * 0.062}, {borderRadius: height*0.045}]}/>   
+        <Image  source={
+            profilePicture
+              ? { uri: profilePicture } // Use fetched profile picture URL
+              : require('../assets/tempProfilePhoto.png') // Fallback to default image
+          }
+           style ={[styles.profilePicture, {height: height * 0.062}, {width: height * 0.062}, {borderRadius: height*0.045}]}/>   
       </View>
+
       
       <View style={[styles.root, {height: height}, {position: 'absolute'}]}>
-        <Text style={styles.name}>{"John Doe"}</Text>
+        <Text style={styles.name}>{name}</Text>
         <Text style={styles.header}>{"Calendar"}</Text>
         <View>
           <CalendarProvider date="" style={{maxHeight: 340}}>
@@ -213,7 +247,7 @@ const styles = StyleSheet.create({
     paddingTop: 120,
   },
   profilePictureBorder: {
-    borderWidth: 3, 
+    borderWidth: 0, 
     borderColor: '#4881CB',
     justifyContent: 'center',
     alignItems: 'center'
