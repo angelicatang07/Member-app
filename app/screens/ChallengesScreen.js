@@ -1,19 +1,51 @@
-import React from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { View, StyleSheet, Image, Text, useWindowDimensions } from 'react-native';
 
 import Screen from '../components/Screen';
 import TransparentButton from '../components/transparentButton';
+import { auth } from '../navigation/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { fetchProfilePicture } from '../components/profilePictureUtils';
 
 function ChallengesScreen({ navigation }) {
-  const name = 'Sean Kim';
+  const [user, setUser] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const {height} = useWindowDimensions();
+
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      try {
+        const url = await fetchProfilePicture();
+        setProfilePicture(url);
+      } catch (error) {
+        console.error('Error fetching profile picture:', error);
+        Alert.alert('Error', 'Failed to load profile picture.');
+      }
+    };
+
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        fetchProfilePic();
+      } else {
+        setProfilePicture(null); // Reset profile picture if not authenticated
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const name = user ? user.displayName : "No name given"; 
 
   return (
     <Screen style={styles.screen}>
-      <View style={styles.profilePictureBorder}>
-        <Image
-          style={styles.profilePicture}
-          source={require('../assets/tempProfilePhoto.png')}
-        />
+      <View style={[{position: 'absolute'}, {marginTop: 21}, {marginRight: 23}, {right: 0}, {height: height*0.075}, {width: height*0.075}, {borderRadius: height * (0.095/2)}, styles.profilePictureBorder]}>
+        <Image  source={
+            profilePicture
+              ? { uri: profilePicture } // Use fetched profile picture URL
+              : require('../assets/tempProfilePhoto.png') // Fallback to default image
+          }
+           style ={[styles.profilePicture, {height: height * 0.062}, {width: height * 0.062}, {borderRadius: height*0.045}]}/>   
       </View>
       {/* <Text style={styles.title}>Challenges</Text> */}
       <Text style={styles.name}>{name}</Text>
@@ -39,7 +71,7 @@ const styles = StyleSheet.create({
   profilePictureBorder: {
     alignItems: 'center',
     borderRadius: 60,
-    borderWidth: 3,
+    borderWidth: 0,
     borderColor: '#4881CB',
     justifyContent: 'center',
     overflow: 'hidden',
