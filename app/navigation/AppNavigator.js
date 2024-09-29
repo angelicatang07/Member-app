@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icons from 'react-native-vector-icons/Octicons';
+import { auth, app } from '../navigation/firebase';
 
 import CalendarScreen from '../screens/CalendarScreen';
 import AdminScreen from '../screens/AdminScreen';
@@ -11,7 +12,6 @@ import SocialsScreen from '../screens/SocialsScreen';
 import adminCheck from '../components/AdminCheck';
 
 const Tab = createBottomTabNavigator();
-const isAdmin = false;
 
 const AppNavigator = () => {
   const [isAdmin, setIsAdmin] = useState(null);
@@ -22,9 +22,13 @@ const AppNavigator = () => {
       setIsAdmin(adminStatus);
     };
 
-    setInterval(() => {
-      checkAdminStatus();
-    }, 1000);
+    async function onAuthStateChanged(user) {
+        checkAdminStatus();
+    }
+
+    const subscriber = auth.onAuthStateChanged(onAuthStateChanged);
+
+    return subscriber;
   }, []);
 
   return (<Tab.Navigator

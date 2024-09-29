@@ -18,11 +18,21 @@ function EditProfileScreen(props) {
     const checkAdminStatus = async () => {
       const adminStatus = await adminCheck();
       setIsAdmin(adminStatus);
+
+      if (adminStatus) {
+        clearInterval(checkInterval);
+      }
     };
   
-    setInterval(() => {
+    const checkInterval = setInterval(() => {
       checkAdminStatus();
-    }, 1000);
+    }, 2000);
+
+    checkAdminStatus();
+
+    return () => {
+        clearInterval(checkInterval);
+    };
   }, []);
 
   if (isAdmin === null) {
@@ -36,7 +46,7 @@ function EditProfileScreen(props) {
   if (isAdmin) {
     return (
       <Screen style={styles.screen}>
-        <Text style={{ color: 'white', textAlign: 'center' }}>You are already an Admin.</Text>
+        <Text style={{ color: 'white', textAlign: 'center' }}>You are already an Admin, please re-launch the application to access the Admin Only features.</Text>
       </Screen>
     );
   }
