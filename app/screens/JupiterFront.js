@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
     pointsContainer: {
         position:'absolute',
         backgroundColor:'#b0bec5',
-        height:25,
+        height:200,
         width:102,
         right:10,
         top:16,
