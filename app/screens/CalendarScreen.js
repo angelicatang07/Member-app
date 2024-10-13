@@ -241,7 +241,7 @@ const CalendarScreen = ({ navigation, props }) => {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    padding: 20,
+    padding: 0,
   },
   screen: {
     paddingTop: 120,
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 10,
     marginRight: 'auto',
-    marginLeft: 3
+    marginLeft: 30
   },
   header2: {
     fontSize: 20,
@@ -288,6 +288,7 @@ const styles = StyleSheet.create({
     height: 70,
     width: 200,
     borderRadius: 10,
+    marginLeft: 25,
     alignItems: "center",
     display: "flex",
     flexDirection: "row",
@@ -300,7 +301,7 @@ const styles = StyleSheet.create({
     marginTop: -2
   },
   eventHeader: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "bold",
     color: 'rgba(255, 255, 255, 1)',
   },

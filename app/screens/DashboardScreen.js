@@ -58,8 +58,10 @@ function DashboardScreen({ navigation }) {
   return (
     <Screen>
       <View style={styles.header}>
-        <Text style={[styles.text,{fontSize: 25}]}> {name} </Text>
-        <Text style={[styles.text,{fontSize: 25}]}> {'Dashboard'} </Text>
+      <View style={styles.textContainer}>
+          <Text style={[styles.text, { fontSize: 13 }]}> {'John Doe'} </Text>
+          <Text style={[styles.text, { fontSize: 22, fontWeight: 'bold'}]}> {'Dashboard'} </Text>
+      </View>
         <TouchableWithoutFeedback
           onPress={() => navigation.navigate('Settings')}
         >
@@ -84,7 +86,7 @@ function DashboardScreen({ navigation }) {
         </View>
         <View>
           <Text style={styles.text}>Tasks Completed</Text>
-          <Text style={styles.statsText}>50 / 80</Text>
+          <Text style={styles.statsText}> 60 / 80</Text>
         </View>
         <View>
           <Text style={styles.text}>Total Hours</Text>
@@ -138,8 +140,18 @@ const styles = StyleSheet.create({
   },
 
   header: {
+    flexDirection: 'row',           
+    justifyContent: 'space-around', 
+    alignContent: 'center',
+    paddingHorizontal: 5,
+  },
+
+  textContainer: {
     flex: 1,
     flexDirection: 'row',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginRight: 100,
   },
 
   profilePictureBorder: {
@@ -154,7 +166,7 @@ const styles = StyleSheet.create({
   },
 
   text: {
-    fontSize: 14,
+    fontSize: 10,
     color: 'white',
     marginTop: -4,
     marginBottom: 10,
@@ -166,9 +178,10 @@ const styles = StyleSheet.create({
     borderColor: '#979797',
     borderRadius: 15,
     paddingVertical: 50,
-    margin: 25,
+    margin: 1,
     textAlign: 'center',
     flexDirection: 'row',
+    marginBottom: 35,
   },
 
   stats: {
@@ -207,6 +220,7 @@ const styles = StyleSheet.create({
   rankLogoText: {
     width: '60%',
     color: 'white',
+    alignItems: 'center',
     justifyContent: 'center',
     color: 'white',
   },
@@ -240,7 +254,7 @@ const styles = StyleSheet.create({
     borderColor: '#979797',
     borderRadius: 15,
     padding: 20,
-    margin: 25,
+    margin: 11,
     textAlign: 'center',
     flexDirection: 'row',
   },
@@ -257,7 +271,7 @@ const styles = StyleSheet.create({
     borderColor: '#979797',
     borderRadius: 15,
     padding: 20,
-    margin: 25,
+    margin: 5,
     textAlign: 'center',
     flexDirection: 'row',
   },
