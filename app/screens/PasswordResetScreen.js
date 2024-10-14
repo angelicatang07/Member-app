@@ -1,13 +1,14 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-
+import { View, StyleSheet, Image, Alert } from 'react-native';
+import { getAuth, updatePassword } from 'firebase/auth';
 import AppForm from '../components/AppForm';
 import AppFormField from '../components/AppFormField';
 import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
-
 import * as Yup from 'yup';
+import Toast from 'react-native-toast-message';
 
+// Validation schema for the form
 const validationSchema = Yup.object().shape({
   password: Yup.string().required().min(6).label('Password'),
   confirmPassword: Yup.string()
@@ -16,6 +17,34 @@ const validationSchema = Yup.object().shape({
 });
 
 function PasswordResetScreen(props) {
+  const auth = getAuth(); // Get Firebase Authentication instance
+
+  const showToast = (message, type) => {
+    Toast.show({
+      type,
+      position: 'top',
+      text1: message,
+      visibilityTime: 4000,
+    });
+  };
+
+  // Function to handle form submission
+  const handleSubmit = async (values) => {
+    const user = auth.currentUser; // Get the current authenticated user
+
+    if (user) {
+      try {
+        await updatePassword(user, values.password); // Update the password
+        Alert.alert('Success', 'Password has been updated successfully.');
+        showToast('Password has been updated succesfully', 'success')
+      } catch (error) {
+        Alert.alert('Error', error.message); // Show error message
+      }
+    } else {
+      Alert.alert('Error', 'No authenticated user found.');
+    }
+  };
+
   return (
     <Screen style={styles.screen}>
       <View style={styles.profilePictureBorder}>
@@ -27,12 +56,12 @@ function PasswordResetScreen(props) {
       <AppForm
         initialValues={{ password: '', confirmPassword: '' }}
         validationSchema={validationSchema}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={handleSubmit} // Pass handleSubmit function
       >
         <AppFormField
           autoCapitalize="none"
           autoCorrect={false}
-          name={'password'}
+          name="password"
           placeholder="New password"
           secureTextEntry
           textContentType="password"
@@ -45,13 +74,13 @@ function PasswordResetScreen(props) {
           secureTextEntry
           textContentType="password"
         />
-        <SubmitButton text={'RESET'} />
+        <SubmitButton text="RESET" />
       </AppForm>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
+
     </Screen>
   );
 }
-
-export default PasswordResetScreen;
 
 const styles = StyleSheet.create({
   profilePictureBorder: {
@@ -73,3 +102,5 @@ const styles = StyleSheet.create({
     paddingTop: 130,
   },
 });
+
+export default PasswordResetScreen;

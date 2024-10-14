@@ -38,10 +38,7 @@ function SettingsMenuScreen({ navigation }) {
       <View style={styles.profilePictureBorder}>
         <Image
           style={styles.profilePicture}
-          source={
-            profilePicture
-              ? { uri: profilePicture } // Use fetched profile picture URL
-              : require('../assets/tempProfilePhoto.png') // Fallback to default image
+          source={ { uri: profilePicture } // Use fetched profile picture URL
           }
           onError={(error) => {
             console.error('Image load error: ', error.nativeEvent.error);
@@ -63,6 +60,7 @@ function SettingsMenuScreen({ navigation }) {
         text="Tech Support"
       />
       <CustomButton text="Sign Out" onPress={handleSignOut} type="PRIMARY" />
+      <Toast ref={(ref) => Toast.setRef(ref)} />
     </Screen>
   );
 }

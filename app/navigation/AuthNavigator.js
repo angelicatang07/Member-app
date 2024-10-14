@@ -5,6 +5,9 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import AppNavigator from './AppNavigator';
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import VerifyEmailScreen from '../screens/VerifyEmailScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen'
+import ForgotPasswordScreenResetPassword from '../screens/ForgotPasswordScreenResetPassword';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -16,6 +19,9 @@ const AuthNavigator = () => (
     <Tab.Screen name="SignIn" component={SignInScreen} />
     <Tab.Screen name="SignUp" component={SignUpScreen} />
     <Tab.Screen name="AppNavigator" component={AppNavigator} />
+    <Tab.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+    <Tab.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+    <Tab.Screen name="ForgotPasswordScreenResetPassword" component={ForgotPasswordScreenResetPassword} />
   </Tab.Navigator>
 );
 

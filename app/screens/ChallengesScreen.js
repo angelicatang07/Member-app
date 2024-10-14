@@ -40,10 +40,7 @@ function ChallengesScreen({ navigation }) {
   return (
     <Screen style={styles.screen}>
       <View style={[{position: 'absolute'}, {marginTop: 21}, {marginRight: 23}, {right: 0}, {height: height*0.075}, {width: height*0.075}, {borderRadius: height * (0.095/2)}, styles.profilePictureBorder]}>
-        <Image  source={
-            profilePicture
-              ? { uri: profilePicture } // Use fetched profile picture URL
-              : require('../assets/tempProfilePhoto.png') // Fallback to default image
+        <Image  source={{ uri: profilePicture } // Use fetched profile picture URL
           }
            style ={[styles.profilePicture, {height: height * 0.062}, {width: height * 0.062}, {borderRadius: height*0.045}]}/>   
       </View>

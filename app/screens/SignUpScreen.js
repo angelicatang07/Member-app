@@ -8,8 +8,9 @@ import Logo from '../assets/stemeLogo.png';
 import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
 import { auth, db } from '../navigation/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
+import Toast from 'react-native-toast-message';
 
 import * as Yup from 'yup';
 
@@ -23,9 +24,17 @@ const validationSchema = Yup.object().shape({
 });
 
 function SignUpScreen({ navigation }) {
+  const showToast = (message, type) => {
+    Toast.show({
+      type,
+      position: 'top',
+      text1: message,
+      visibilityTime: 4000,
+    });
+  };
+
   const writeUserData = function (userUID, username, email, imageUrl) {
     const reference = ref(db, 'users/' + userUID);
-
     set(reference, {
       username: username,
       email: email,
@@ -41,9 +50,30 @@ function SignUpScreen({ navigation }) {
         displayName: fullName,
       });
   
+      // Send email verification
+      await sendEmailVerification(user);
+  
       writeUserData(user.uid, fullName, email, '#');
+  
+      // Navigate to a new screen or show a message to check email verification
+      navigation.navigate('VerifyEmail'); // Assuming you have a 'VerifyEmail' screen
+  
     } catch (error) {
-      console.log(error.message);
+      let errorMessage;
+  
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email address is already in use.';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again.';
+      }
+  
+      // Show error message (e.g., using an alert or a state variable)
+      showToast(errorMessage, 'error');
     }
   };
 
@@ -101,6 +131,7 @@ function SignUpScreen({ navigation }) {
           onPress={() => navigation.navigate('SignIn')}
         />
       </View>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
     </Screen>
   );
 }

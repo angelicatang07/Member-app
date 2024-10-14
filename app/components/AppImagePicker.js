@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Button, Image, StyleSheet, Alert } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { fetchProfilePicture, uploadImage } from '../components/profilePictureUtils'; 
-import { auth } from '../navigation/firebase';  
+import { auth } from '../navigation/firebase';  // this isn't needed
 
 const AppImagePicker = () => {
   const [profilePicture, setProfilePicture] = useState(null);
