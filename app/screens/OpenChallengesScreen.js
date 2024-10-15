@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,7 +10,9 @@ import {
 } from 'react-native';
 import Screen from '../components/Screen';
 
+import { fetchProfilePicture } from '../components/profilePictureUtils';
 import Check from '../assets/check.png';
+import { useFocusEffect } from '@react-navigation/native';
 
 const challenges = [
   {
@@ -31,54 +33,76 @@ const sortedChallenges = challenges.sort((a, b) => a.points - b.points);
 
 function OpenChallengesScreen({ navigation }) {
   const { height, width } = useWindowDimensions();
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    const getProfilePicture = async () => {
+      const url = await fetchProfilePicture();
+      if (url) {
+        setProfilePicture(url);
+      }
+      setIsLoading(false); // Stop loading once the image is fetched
+    };
+
+    getProfilePicture();
+  }, []);
+
+  const fetchProfilePic = async () => {
+    const url = await fetchProfilePicture();
+    setProfilePicture(url);
+  };
+
+  const handleFetchProfilePicture = () => {
+    fetchProfilePic(); // Fetch the profile picture when the button is pressed
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      handleFetchProfilePicture();
+    }, [])
+  );
+  
   const onChallengePressed = () => {
-    navigation.navigate("QR Code Scanner");
+    navigation.navigate('QR Code Scanner');
   };
 
   return (
     <Screen style={styles.screen}>
-      <View style={styles.profilePictureBorder}>
-        <Image
-          style={styles.profilePicture}
-          source={require('../assets/tempProfilePhoto.png')}
-        />
-      </View>
+        {!isLoading && (
+          <Image
+            style={styles.profilePicture}
+            source={
+              profilePicture
+                ? { uri: profilePicture } // Use fetched profile picture URL
+                : require('../assets/tempProfilePhoto.png') // Fallback to default image
+            }
+          />
+        )}
       <ScrollView style={[styles.challengesScroll, { width: width }]}>
-      {sortedChallenges.map((challenge, index) => (
-        <View key={index} style={styles.challengeContainer}>
-          <Pressable
-            onPress={onChallengePressed}
-            style={[styles.challengeNameContainer, { width: width * 0.68 }]}
-          >
-            <Text style={styles.challengeText}>{challenge.text}</Text>
-          </Pressable>
-          <View style={styles.checkContainer}>
-            <Text style={styles.challengeText}>{`+${challenge.points}`}</Text>
-            <Image source={Check} style={styles.challengeCheck} />
+        {sortedChallenges.map((challenge, index) => (
+          <View key={index} style={styles.challengeContainer}>
+            <Pressable
+              onPress={onChallengePressed}
+              style={[styles.challengeNameContainer, { width: width * 0.68 }]}
+            >
+              <Text style={styles.challengeText}>{challenge.text}</Text>
+            </Pressable>
+            <View style={styles.checkContainer}>
+              <Text style={styles.challengeText}>{`+${challenge.points}`}</Text>
+              <Image source={Check} style={styles.challengeCheck} />
+            </View>
           </View>
-        </View>
-      ))}
+        ))}
       </ScrollView>
     </Screen>
   );
 }
+
 const styles = StyleSheet.create({
-  root: {
-    alignItems: 'center',
-    margin: 20,
-  },
   screen: {
     paddingTop: 120,
     alignItems: 'center',
-  },
-
-  text: {
-    fontSize: 14,
-    color: 'white',
-    marginTop: 7,
-    marginBottom: 10,
-    marginRight: 'auto',
   },
   challengesScroll: {
     marginTop: 5,
@@ -122,22 +146,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'visible',
   },
-  profilePictureBorder: {
-    alignItems: 'center',
-    borderRadius: 60,
-    borderWidth: 3,
-    borderColor: '#4881CB',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    right: 30,
-    top: 30,
-    position: 'absolute',
+  profilePicture: {
     width: 60,
     height: 60,
-  },
-  profilePicture: {
-    maxHeight: 60,
-    maxWidth: 60,
+    borderRadius: 30, // Circular image
+    position: 'absolute',
+    right: 30,
+    top: 30,
   },
 });
+
 export default OpenChallengesScreen;

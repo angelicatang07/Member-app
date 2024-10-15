@@ -7,7 +7,6 @@ import CustomButton from '../components/customButton';
 import Logo from '../assets/stemeLogo.png';
 import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
-import Toast from 'react-native-toast-message';
 import { auth } from '../navigation/firebase';
 import { updatePassword } from 'firebase/auth';
 import * as Yup from 'yup';
@@ -28,23 +27,11 @@ function ForgotPasswordScreenResetPassword({ navigation }) {
       const user = auth.currentUser;
       if (user) {
         await updatePassword(user, password);
-        Toast.show({
-          type: 'success',
-          text1: 'Password Updated',
-          text2: 'Your password has been successfully updated.',
-          position: 'bottom',
-        });
         navigation.navigate('SignIn'); // Navigate back to Sign In after successful update
       } else {
         throw new Error('User not authenticated. Please try again.');
       }
     } catch (error) {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: error.message,
-        position: 'bottom',
-      });
     }
   };
 

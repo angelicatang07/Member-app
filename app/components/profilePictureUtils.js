@@ -4,11 +4,7 @@ import { auth } from '../navigation/firebase';
 
 // Function to fetch the profile picture URL
 export const fetchProfilePicture = async () => {
-  try {
     const currentUser = auth.currentUser;
-    if (!currentUser) {
-      throw new Error('No authenticated user');
-    }
 
     const userId = currentUser.uid;
     const userRef = dbRef(getDatabase(), `users/${userId}`);
@@ -16,13 +12,7 @@ export const fetchProfilePicture = async () => {
 
     if (snapshot.exists()) {
       return snapshot.val().profilePicture;
-    } else {
-      throw new Error('Profile picture not found');
     }
-  } catch (error) {
-    console.error('Error fetching profile picture: ', error);
-    throw error; // Propagate the error to be handled by the caller
-  }
 };
 
 // Function to upload an image and get the download URL

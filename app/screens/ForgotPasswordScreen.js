@@ -9,7 +9,6 @@ import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
 import { auth } from '../navigation/firebase';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import Toast from 'react-native-toast-message';
 
 import * as Yup from 'yup';
 
@@ -17,24 +16,15 @@ const validationSchema = Yup.object().shape({
   email: Yup.string().required().email().label('Email'),
 });
 
-const showToast = (message, type) => {
-    Toast.show({
-      type,
-      position: 'top',
-      text1: message,
-      visibilityTime: 4000,
-    });
-  };
 
 function ForgotPasswordScreen({ navigation }) {
   const handlePasswordReset = async (email) => {
     try {
       await sendPasswordResetEmail(auth, email);
-        showToast('Check your email to reset your password', 'success');
+        alert.Alert("Check your email to reset your password");
         [{ text: "OK", onPress: () => navigation.goBack() }]
     } catch (error) {
-        showToast('Email is invalid or not registered', 'error');
-      Alert.alert("Error", error.message);
+        Alert.alert("Email is invalid or not registered");
     }
   };
 
@@ -66,7 +56,6 @@ function ForgotPasswordScreen({ navigation }) {
           onPress={() => navigation.goBack()} 
         />
       </View>
-      <Toast ref={(ref) => Toast.setRef(ref)} />
     </Screen>
   );
 }

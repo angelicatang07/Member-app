@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Alert } from 'react-native';
 
 import AppForm from '../components/AppForm';
 import AppFormField from '../components/AppFormField';
@@ -10,7 +10,6 @@ import SubmitButton from '../components/submitButton';
 import { auth, db } from '../navigation/firebase';
 import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
-import Toast from 'react-native-toast-message';
 
 import * as Yup from 'yup';
 
@@ -24,14 +23,6 @@ const validationSchema = Yup.object().shape({
 });
 
 function SignUpScreen({ navigation }) {
-  const showToast = (message, type) => {
-    Toast.show({
-      type,
-      position: 'top',
-      text1: message,
-      visibilityTime: 4000,
-    });
-  };
 
   const writeUserData = function (userUID, username, email, imageUrl) {
     const reference = ref(db, 'users/' + userUID);
@@ -49,22 +40,14 @@ function SignUpScreen({ navigation }) {
       await updateProfile(user, {
         displayName: fullName,
       });
-  
-      // Send email verification
-      await sendEmailVerification(user);
-  
+      // await sendEmailVerification(user);
       writeUserData(user.uid, fullName, email, '#');
-  
-      // Navigate to a new screen or show a message to check email verification
-      navigation.navigate('VerifyEmail'); // Assuming you have a 'VerifyEmail' screen
+      navigation.navigate('SignIn');
   
     } catch (error) {
       let errorMessage;
   
       switch (error.code) {
-        case 'auth/invalid-email':
-          errorMessage = 'The email address is not valid.';
-          break;
         case 'auth/email-already-in-use':
           errorMessage = 'This email address is already in use.';
           break;
@@ -72,8 +55,7 @@ function SignUpScreen({ navigation }) {
           errorMessage = 'An error occurred. Please try again.';
       }
   
-      // Show error message (e.g., using an alert or a state variable)
-      showToast(errorMessage, 'error');
+      Alert.alert(errorMessage);
     }
   };
 
@@ -131,7 +113,6 @@ function SignUpScreen({ navigation }) {
           onPress={() => navigation.navigate('SignIn')}
         />
       </View>
-      <Toast ref={(ref) => Toast.setRef(ref)} />
     </Screen>
   );
 }
