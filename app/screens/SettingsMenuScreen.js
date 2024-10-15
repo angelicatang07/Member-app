@@ -1,32 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Image, Alert } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import CustomButton from '../components/customButton';
 import MenuButton from '../components/MenuButton';
 import Screen from '../components/Screen';
 import { auth } from '../navigation/firebase';
 import { signOut } from 'firebase/auth';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
+import { useFocusEffect } from '@react-navigation/native';
 
 function SettingsMenuScreen({ navigation }) {
   const [profilePicture, setProfilePicture] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Track loading state
 
   useEffect(() => {
     const getProfilePicture = async () => {
-      try {
-        const url = await fetchProfilePicture();
-        if (url) {
-          setProfilePicture(url);
-        } else {
-          throw new Error('No profile picture found');
-        }
-      } catch (error) {
-        console.error('Error fetching profile picture: ', error);
-        Alert.alert('Error', 'Failed to load profile picture.');
+      const url = await fetchProfilePicture();
+      if (url) {
+        setProfilePicture(url);
       }
+      setIsLoading(false); // Stop loading once the image is fetched
     };
 
     getProfilePicture();
   }, []);
+
+  const fetchProfilePic = async () => {
+    const url = await fetchProfilePicture();
+    setProfilePicture(url);
+  };
+
+  const handleFetchProfilePicture = () => {
+    fetchProfilePic(); // Fetch the profile picture when the button is pressed
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      handleFetchProfilePicture();
+      return () => {
+        setProfilePicture(null); // Clear the profile picture on exit
+      };
+    }, [])
+  );
 
   const handleSignOut = async () => {
     await signOut(auth);
@@ -36,18 +50,16 @@ function SettingsMenuScreen({ navigation }) {
   return (
     <Screen style={styles.screen}>
       <View style={styles.profilePictureBorder}>
-        <Image
-          style={styles.profilePicture}
-          source={
-            profilePicture
-              ? { uri: profilePicture } // Use fetched profile picture URL
-              : require('../assets/tempProfilePhoto.png') // Fallback to default image
-          }
-          onError={(error) => {
-            console.error('Image load error: ', error.nativeEvent.error);
-            setProfilePicture(null); // Reset if the image fails to load
-          }}
-        />
+        {!isLoading && (
+          <Image
+            style={styles.profilePicture}
+            source={
+              profilePicture
+                ? { uri: profilePicture } // Use fetched profile picture URL
+                : require('../assets/tempProfilePhoto.png') // Fallback to default image
+            }
+          />
+        )}
       </View>
       <MenuButton
         onPress={() => navigation.navigate('Account')}
@@ -92,4 +104,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-

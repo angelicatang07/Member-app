@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, StyleSheet, Image, Alert } from 'react-native';
 
 import AppForm from '../components/AppForm';
 import AppFormField from '../components/AppFormField';
@@ -8,7 +8,7 @@ import Logo from '../assets/stemeLogo.png';
 import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
 import { auth, db } from '../navigation/firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile, sendEmailVerification } from 'firebase/auth';
 import { ref, set } from 'firebase/database';
 
 import * as Yup from 'yup';
@@ -23,9 +23,9 @@ const validationSchema = Yup.object().shape({
 });
 
 function SignUpScreen({ navigation }) {
+
   const writeUserData = function (userUID, username, email, imageUrl) {
     const reference = ref(db, 'users/' + userUID);
-
     set(reference, {
       username: username,
       email: email,
@@ -40,10 +40,22 @@ function SignUpScreen({ navigation }) {
       await updateProfile(user, {
         displayName: fullName,
       });
-  
+      // await sendEmailVerification(user);
       writeUserData(user.uid, fullName, email, '#');
+      navigation.navigate('SignIn');
+  
     } catch (error) {
-      console.log(error.message);
+      let errorMessage;
+  
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'This email address is already in use.';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again.';
+      }
+  
+      Alert.alert(errorMessage);
     }
   };
 

@@ -1,5 +1,6 @@
 import React, {useState, useCallback, useMemo, setState, useEffect} from 'react';
 import { View, Text, Image, Button, StyleSheet, TouchableOpacity, useWindowDimensions, ScrollView, TouchableWithoutFeedback} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import {Calendar, CalendarUtils, CalendarList, CalendarProvider, LocaleConfig} from 'react-native-calendars';
 import Screen from '../components/Screen';
 import TempProfilePhoto from '../assets/tempProfilePhoto.png';
@@ -11,16 +12,15 @@ import CalendarNode from '../components/CalendarEventNode';
 const CalendarScreen = ({ navigation, props }) => {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchProfilePic = async () => {
-      try {
-        const url = await fetchProfilePicture();
+      const url = await fetchProfilePicture();
+      if (url) {
         setProfilePicture(url);
-      } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        Alert.alert('Error', 'Failed to load profile picture.');
       }
+      setIsLoading(false);
     };
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -34,6 +34,21 @@ const CalendarScreen = ({ navigation, props }) => {
 
     return () => unsubscribe();
   }, []);
+
+  const fetchProfilePic = async () => {
+    const url = await fetchProfilePicture();
+    setProfilePicture(url);
+  };
+
+  const handleFetchProfilePicture = () => {
+    fetchProfilePic(); // Fetch the profile picture when the button is pressed
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      handleFetchProfilePicture();
+    }, [])
+  );
 
   const name = user ? user.displayName : "No name given"; 
 
@@ -89,12 +104,14 @@ const CalendarScreen = ({ navigation, props }) => {
   return (
     <Screen style={styles.screen}>
       <View style={[{position: 'absolute'}, {marginTop: 21}, {marginRight: 23}, {right: 0}, {height: height*0.075}, {width: height*0.075}, {borderRadius: height * (0.095/2)}, styles.profilePictureBorder]}>
+      {!isLoading && (
         <Image  source={
             profilePicture
               ? { uri: profilePicture } // Use fetched profile picture URL
               : require('../assets/tempProfilePhoto.png') // Fallback to default image
           }
            style ={[styles.profilePicture, {height: height * 0.062}, {width: height * 0.062}, {borderRadius: height*0.045}]}/>   
+           )}
       </View>
 
       

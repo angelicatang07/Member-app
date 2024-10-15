@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, Text, useWindowDimensions } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native'; 
 
 import Screen from '../components/Screen';
 import TransparentButton from '../components/transparentButton';
@@ -10,22 +11,13 @@ import { fetchProfilePicture } from '../components/profilePictureUtils';
 function ChallengesScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
-  const {height} = useWindowDimensions();
+  const { height } = useWindowDimensions();
 
   useEffect(() => {
-    const fetchProfilePic = async () => {
-      try {
-        const url = await fetchProfilePicture();
-        setProfilePicture(url);
-      } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        Alert.alert('Error', 'Failed to load profile picture.');
-      }
-    };
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        // Optionally fetch the profile picture when user signs in
         fetchProfilePic();
       } else {
         setProfilePicture(null); // Reset profile picture if not authenticated
@@ -35,19 +27,32 @@ function ChallengesScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
+  const fetchProfilePic = async () => {
+    const url = await fetchProfilePicture();
+    setProfilePicture(url);
+  };
+
+  const handleFetchProfilePicture = () => {
+    fetchProfilePic(); // Fetch the profile picture when the button is pressed
+  };
+
+
+  useFocusEffect(
+    React.useCallback(() => {
+      handleFetchProfilePicture();
+    }, [])
+  );
+
   const name = user ? user.displayName : "No name given"; 
 
   return (
     <Screen style={styles.screen}>
-      <View style={[{position: 'absolute'}, {marginTop: 21}, {marginRight: 23}, {right: 0}, {height: height*0.075}, {width: height*0.075}, {borderRadius: height * (0.095/2)}, styles.profilePictureBorder]}>
-        <Image  source={
-            profilePicture
-              ? { uri: profilePicture } // Use fetched profile picture URL
-              : require('../assets/tempProfilePhoto.png') // Fallback to default image
-          }
-           style ={[styles.profilePicture, {height: height * 0.062}, {width: height * 0.062}, {borderRadius: height*0.045}]}/>   
+      <View style={[{ position: 'absolute' }, { marginTop: 21 }, { marginRight: 23 }, { right: 0 }, { height: height * 0.075 }, { width: height * 0.075 }, { borderRadius: height * (0.095 / 2) }, styles.profilePictureBorder]}>
+        <Image 
+          source={{ uri: profilePicture }} // Use fetched profile picture URL
+          style={[styles.profilePicture, { height: height * 0.062 }, { width: height * 0.062 }, { borderRadius: height * 0.045 }]} 
+        />   
       </View>
-      {/* <Text style={styles.title}>Challenges</Text> */}
       <Text style={styles.name}>{name}</Text>
       <TransparentButton
         onPress={() => navigation.navigate('Open Challenges')}
@@ -56,11 +61,11 @@ function ChallengesScreen({ navigation }) {
       />
 
       <TransparentButton
-      onPress={() => navigation.navigate('Level Based Challenges')}
+        onPress={() => navigation.navigate('Level Based Challenges')}
         text="Level-Based Challenges"
         text2="Complete these challenges at any time!"
       />
-      {/* Should run backend code to switch to Level Based Challenges Page*/}
+
     </Screen>
   );
 }

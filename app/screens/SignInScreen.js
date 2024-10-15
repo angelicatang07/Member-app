@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-
+import { View, StyleSheet, Image, Alert } from 'react-native';
 import AppForm from '../components/AppForm';
 import AppFormField from '../components/AppFormField';
 import CustomButton from '../components/customButton';
@@ -8,8 +7,7 @@ import Logo from '../assets/stemeLogo.png';
 import Screen from '../components/Screen';
 import SubmitButton from '../components/submitButton';
 import { auth } from '../navigation/firebase';
-import { onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-
+import { onAuthStateChanged, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 import * as Yup from 'yup';
 
 const validationSchema = Yup.object().shape({
@@ -18,22 +16,50 @@ const validationSchema = Yup.object().shape({
 });
 
 function SignInScreen({ navigation }) {
-  const [user, setUser] = useState({});
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      navigation.navigate('AppNavigator');
-    }
-  });
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Check if the email is verified
+        if (user.emailVerified) {
+          navigation.navigate('Dashboard')  // was App Navigator, but this brought it to settings, causing bugs with the Profile Picture
+        } else {
+          // Sign out the user if email is not verified
+          auth.signOut();
+          Alert.alert('Verify Email', 'Your account needs to be authenicated. Check your email to verify your idenity');
+          sendEmailVerification(user)
+        }
+      } else {
+        setUser(null); // Set user to null if not authenticated
+      }
+    });
+    return unsubscribe; // Cleanup subscription on unmount
+  }, [navigation]);
+
   const handleSignIn = async (email, password) => {
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+  
     } catch (error) {
-      console.log(error.message);
+      let errorMessage = '';
+  
+      switch (error.code) {
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email. Please sign up.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed login attempts. Please try again later.';
+          break;
+        default:
+          errorMessage = 'An unexpected error occurred. Please try again.';
+          break;
+      }
+  
+      Alert.alert('Login Error', errorMessage); // Show error messages for login errors
     }
   };
 
@@ -68,7 +94,11 @@ function SignInScreen({ navigation }) {
           />
           <SubmitButton text={'LOGIN'} />
         </AppForm>
-        <CustomButton text={'Forgot your password?'} type="TERTIARY" />
+        <CustomButton 
+          text={'Forgot your password?'} 
+          type="TERTIARY"
+          onPress={() => navigation.navigate('ForgotPassword')} 
+        />        
         <CustomButton
           style={styles.createAccount}
           text={"Don't have an account? Create one "}
