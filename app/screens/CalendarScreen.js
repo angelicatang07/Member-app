@@ -7,6 +7,7 @@ import TempProfilePhoto from '../assets/tempProfilePhoto.png';
 import { auth } from '../navigation/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
+import CalendarNode from '../components/CalendarEventNode';
 
 const CalendarScreen = ({ navigation, props }) => {
   const [user, setUser] = useState(null);
@@ -231,20 +232,7 @@ const CalendarScreen = ({ navigation, props }) => {
           </CalendarProvider>
         </View>        
         <Text style={styles.header}>{"Upcoming Events"}</Text>
-
-        <ScrollView style={[styles.eventScroll, {width: width}]} horizontal="True">
-          <View style={styles.eventContainer}>
-            <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {marginLeft: 10}, {alignItems: "center"}, {justifyContent: "center"}]}>
-              <Text style={styles.eventDateNumber}>{"15"}</Text>
-              <Text style={styles.eventHeader}>{"May"}</Text>
-            </View>
-            <View style={{marginLeft: 10}}>
-              <Text style={styles.eventHeader}>{"8:00 AM"}</Text>
-              <Text style={[styles.eventHeader, {fontSize: 10}]}>{"STEME Event Name"}</Text>
-              <Text style={[styles.eventHeader, {fontSize: 9}, {marginBottom: 2}]}>{"8:00 - 10:00"}</Text>
-            </View>
-          </View>
-        </ScrollView>
+        <CalendarNode />
       </View>
       <View style={styles.createEventContainer}>
         <TouchableOpacity style={styles.createEventButton} onPress={() => navigation.navigate('EventFormScreen')}>
@@ -258,7 +246,7 @@ const CalendarScreen = ({ navigation, props }) => {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    padding: 20,
+    padding: 0,
   },
   screen: {
     paddingTop: 120,
@@ -286,7 +274,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.8)',
     marginBottom: 10,
     marginRight: 'auto',
-    marginLeft: 3
+    marginLeft: 30
   },
   header2: {
     fontSize: 20,
@@ -305,6 +293,7 @@ const styles = StyleSheet.create({
     height: 70,
     width: 200,
     borderRadius: 10,
+    marginLeft: 25,
     alignItems: "center",
     display: "flex",
     flexDirection: "row",
@@ -317,7 +306,7 @@ const styles = StyleSheet.create({
     marginTop: -2
   },
   eventHeader: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: "bold",
     color: 'rgba(255, 255, 255, 1)',
   },

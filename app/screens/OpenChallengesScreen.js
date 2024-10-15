@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   challengeContainer: {
-    height: 70,
+    height: 75,
     borderRadius: 10,
     alignItems: 'center',
     display: 'flex',
@@ -117,13 +117,13 @@ const styles = StyleSheet.create({
   challengeNameContainer: {
     backgroundColor: 'rgba(135, 121, 164, 0.3)',
     marginLeft: 20,
-    height: 50,
+    height: 60,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   challengeText: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: 'bold',
     color: 'rgba(255, 255, 255, 1)',
     marginBottom: 1,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {StyleSheet,
     View,
     SafeAreaView,
@@ -14,13 +14,12 @@ import {StyleSheet,
 import { LinearGradient } from 'expo-linear-gradient';
 import Constants from 'expo-constants';
 
-import leaderboardData from '../../leaderboard.json'; // REPLACE WITH REALTIME FIREBASE DATA
+import { auth, app } from '../navigation/firebase';
+import { getFirestore, collection, getDocs, query } from 'firebase/firestore';
 
-const sortedLeaderboardData = leaderboardData.sort((a, b) => {
-    if (a.id < b.id) {
-        return -1;
-    }
-});
+import { getDatabase, ref as dbRef, get } from 'firebase/database';
+
+const db = getFirestore(app);
 
 const Divider = () => {
     return (
@@ -76,33 +75,35 @@ const ReactangleBox = (props) => {
         {props.isGlowing && <RectangleBoxDisplay />}
 
         <View style={styles.rectangleBox}>
-            <Rank place={props.props.id} />
+            <Rank place={props.data.placement} />
 
             <Divider />
 
-            <Image src={props.props.picture} style={styles.profilePic} />
+            {props.data.picture
+            ? <Image src={props.data.picture} style={styles.profilePic} />
+            : <Image source={require("../assets/blankProfile.png")} style={styles.profilePic} />}
 
             <View style={styles.nameBox}>
                 <Text style={styles.name} adjustsFontSizeToFit={true} numberOfLines={1}>
-                    {props.props.name}
+                    {props.data.name}
                 </Text>
             </View>
 
             <Text style={styles.pointsText} adjustsFontSizeToFit={true} numberOfLines={1}>
-                {props.props.points}
+                {props.data.points}
             </Text>
         </View>
     </>
     );
 }
 
-function LeaderboardList() {
+const LeaderboardList = props => {
     return (
         <SafeAreaView style={styles.leaderboardList}>
             <FlatList
-                data={sortedLeaderboardData}
+                data={props.data}
                 renderItem={({item}) => {
-                    return(<ReactangleBox props={item} key={item.id} isGlowing={item.id==4} />);
+                    return(<ReactangleBox data={item} key={item.id} isGlowing={item.isGlowing} />);
                 }}
                 keyExtractor={(item) => item.id}
                 style={{height: Dimensions.get('window').height * (5/6)}}
@@ -130,7 +131,56 @@ function Screen({ children, style }) {
     );
 }
 
+// Function to fetch the profile picture URL
+const fetchProfilePicture = async (picId) => {
+    try {
+        const userRef = dbRef(getDatabase(), `users/${picId}`);
+        const snapshot = await get(userRef);
+
+        if (snapshot.exists()) {
+            return snapshot.val().profilePicture;
+        } else {
+            return undefined;
+        }
+    } catch (error) {
+        console.error('Error fetching profile picture: ', error);
+        throw error; // Propagate the error to be handled by the caller
+    }
+};
+
+async function fetchLeaderboardData() {
+    const q = await query(collection(db, "users"));
+    const querySnapshot = await getDocs(q);
+
+    const sortedData = querySnapshot.docs
+        .map(doc => ({ id: doc.id, name: doc.name ? doc.name : "Unnamed", ...doc.data() }))
+        .filter(user => user.points !== undefined)
+        .sort((a, b) => b.points - a.points);
+    
+    sortedData.forEach(async (user, index) => {
+        const authUser = auth.currentUser;
+        user.isGlowing = user.id === auth.currentUser.uid;
+        
+        user.placement = index + 1;
+
+        user.picture = await fetchProfilePicture(user.id);
+    });
+
+    return sortedData;
+}
+
 function Leaderboard({ navigation }) {
+    const [leaderboardData, setLeaderboardData] = useState(null);
+
+    useEffect(() => {
+      const updateLeaderboardData = async () => {
+        const _leaderboardData = await fetchLeaderboardData();
+        setLeaderboardData(_leaderboardData);
+      };
+    
+      updateLeaderboardData();
+    }, []);
+
     return (
         <Screen style={styles.screen}>
             <TouchableOpacity onPress={() => {navigation.goBack()} } style={styles.backArrowContainer}>
@@ -139,7 +189,7 @@ function Leaderboard({ navigation }) {
 
             <Text style={styles.title}>Leaderboard</Text>
 
-            <LeaderboardList />
+            <LeaderboardList data={leaderboardData} />
         </Screen>
     );
 }
