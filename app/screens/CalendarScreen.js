@@ -41,7 +41,7 @@ const CalendarScreen = ({ navigation, props }) => {
   };
 
   const handleFetchProfilePicture = () => {
-    fetchProfilePic(); // Fetch the profile picture when the button is pressed
+    fetchProfilePic();
   };
 
   useFocusEffect(

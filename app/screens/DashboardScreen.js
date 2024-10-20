@@ -66,7 +66,7 @@ function DashboardScreen({ navigation }) {
     <Screen>
       <View style={styles.header}>
       <View style={styles.textContainer}>
-          <Text style={[styles.text, { fontSize: 13 }]}> {'John Doe'} </Text>
+          <Text style={[styles.text, { fontSize: 13 }]}> {name} </Text>
           <Text style={[styles.text, { fontSize: 22, fontWeight: 'bold'}]}> {'Dashboard'} </Text>
       </View>
         <TouchableWithoutFeedback
