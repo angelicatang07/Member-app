@@ -234,11 +234,11 @@ const CalendarScreen = ({ navigation, props }) => {
         <Text style={styles.header}>{"Upcoming Events"}</Text>
         <CalendarNode />
       </View>
-      <View style={styles.createEventContainer}>
+      {/* <View style={styles.createEventContainer}>
         <TouchableOpacity style={styles.createEventButton} onPress={() => navigation.navigate('EventFormScreen')}>
           <Text style={styles.createEventText}>Create Event</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </Screen>
   );
 };
