@@ -75,7 +75,6 @@ function EditProfileScreen(props) {
 async function verifyAdminCode(code) {
   const adminCodeDoc = await getDoc(doc(db, `RoleCodes/Admin`));
   const adminCode = adminCodeDoc.data().code;
-
   if (adminCode !== code) return;
   
   await setDoc(doc(db, `users/${auth.currentUser.uid}`), {

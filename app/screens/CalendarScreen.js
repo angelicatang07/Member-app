@@ -3,7 +3,6 @@ import { View, Text, Image, Button, StyleSheet, TouchableOpacity, useWindowDimen
 import { useFocusEffect } from '@react-navigation/native';
 import {Calendar, CalendarUtils, CalendarList, CalendarProvider, LocaleConfig} from 'react-native-calendars';
 import Screen from '../components/Screen';
-import TempProfilePhoto from '../assets/tempProfilePhoto.png';
 import { auth } from '../navigation/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
