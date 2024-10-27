@@ -124,25 +124,38 @@ const CalendarNode = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Event Details</Text>
+            <Text style={{fontWeight:"bold"}}>Event Details</Text>
+
+
             {selectedEvent && (
-              <View>
-                <Text>{selectedEvent.summary}</Text>
-                <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {alignItems: "center"}, {justifyContent: "center"}]}>
-                  <Text style={styles.eventDateNumber}>{eventStartTime.day}</Text>
-                  <Text style={styles.eventHeader}>{eventStartTime.monthName}</Text>
-                </View>
+             <View style={styles.container}>
+                
                 <View>
-                  <Text>
-                    Time: {""}
-                    {
-                      eventStartTime.hour + ':' + eventStartTime.minute + ' ' + eventStartTime.amPM + ' - '
-                      + eventEndTime.hour + ':' + eventEndTime.minute + ' ' + eventStartTime.amPM
-                    }
-                  </Text>
+                  <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {alignItems: "center"}, {justifyContent: "center"}]}>
+                    <Text style={styles.eventDateNumber}>{eventStartTime.day}</Text>
+                    <Text style={styles.eventHeader}>{eventStartTime.monthName}</Text>
+                  </View>
                 </View>
-              </View>
+              
+                <View style={styles.innerContainer}>    
+                  {selectedEvent && (
+                    <View>
+                      <Text>{selectedEvent.summary}</Text>
+                      <View>
+                        <Text style={{paddingTop:10}}>
+                          Time: {""}
+                          {eventStartTime.hour + ':' + eventStartTime.minute + ' ' + eventStartTime.amPM + ' - ' +
+                            eventEndTime.hour + ':' + eventEndTime.minute + ' ' + eventEndTime.amPM}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+            </View>
             )}
+
+
             <TouchableOpacity onPress={closeModal}>
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
@@ -162,13 +175,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     display: "flex",
     flexDirection: "row",
+    marginLeft: 0
   },
   eventDateNumber: {
     fontSize: 18,
     fontWeight: "bold",
     color: 'rgba(255, 255, 255, 1)',
     marginBottom: -3,
-    marginTop: -2
+    marginTop: -2,
+    marginLeft: 0
   },
   eventHeader: {
     fontSize: 12,
@@ -187,6 +202,21 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 10,
   },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+    paddingRight: 10
+    },
+  innerContainer: {
+    paddingBottom: 10,
+    paddingTop: 10,
+    paddingLeft: 10,
+    width: 350,
+    height: 100,
+    margin: 5,
+    justifyContent: 'center',
+  }
 })
 
 export default CalendarNode;
