@@ -186,7 +186,8 @@ const CalendarNode = () => {
                     }
                   </Text>
                 </View>
-              </View>
+
+            </View>
             )}
             {isAdmin && (
               <>
@@ -208,6 +209,8 @@ const CalendarNode = () => {
                 <Text style={styles.buttonText}>Save Image</Text>
               </TouchableOpacity>
               )}
+
+
             <TouchableOpacity onPress={closeModal}>
               <Text style={styles.buttonText}>Close</Text>
             </TouchableOpacity>
@@ -251,6 +254,21 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: 'white',
     borderRadius: 10,
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+    paddingRight: 10
+    },
+  innerContainer: {
+    paddingBottom: 10,
+    paddingTop: 10,
+    paddingLeft: 10,
+    width: 350,
+    height: 100,
+    margin: 5,
+    justifyContent: 'center',
   },
   qrContainer: {
     marginTop: 20, // Add some space above the QR code
