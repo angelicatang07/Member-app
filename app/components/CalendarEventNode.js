@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, FlatList, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, Modal, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 
 // This is your Calendar screen component
 const CalendarNode = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [eventStartTime, setEventStartTime] = useState(null);
+  const [eventEndTime, setEventEndTime] = useState(null);
 
   // Function to fetch events from the backend
   const fetchEvents = async (key) => {
@@ -64,6 +68,21 @@ const CalendarNode = () => {
     return data;
   }
 
+
+  const openModal = (event, eventStart, eventEnd) => {
+    setSelectedEvent(event);
+    setEventStartTime(eventStart);
+    setEventEndTime(eventEnd);
+    setModalVisible(true);
+  } 
+
+  const closeModal = () => {
+    setSelectedEvent(null);
+    setEventStartTime(null);
+    setEventEndTime(null);
+    setModalVisible(false);
+  }
+
   // Render events or a loading spinner
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -76,26 +95,73 @@ const CalendarNode = () => {
           renderItem={({ item }) => {
             const startTime = dateFormat(item.start.dateTime);
             const endTime = dateFormat(item.end.dateTime);
-
             return (
-              <View style={styles.eventContainer}>
-                <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {marginLeft: 10}, {alignItems: "center"}, {justifyContent: "center"}]}>
-                  <Text style={styles.eventDateNumber}>{startTime.day}</Text>
-                  <Text style={styles.eventHeader}>{startTime.monthName}</Text>
+              <TouchableOpacity onPress={() => openModal(item, startTime, endTime)}>
+                <View style={styles.eventContainer}>
+                  <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {marginLeft: 10}, {alignItems: "center"}, {justifyContent: "center"}]}>
+                    <Text style={styles.eventDateNumber}>{startTime.day}</Text>
+                    <Text style={styles.eventHeader}>{startTime.monthName}</Text>
+                  </View>
+                  <View style={{marginLeft: 10}}>
+                    <Text style={styles.eventHeader}>{startTime.hour + ':' + startTime.minute + ' ' + startTime.amPM}</Text>
+                    <Text style={[styles.eventHeader, {fontSize: 10}]}>{item.summary}</Text>
+                    <Text style={[styles.eventHeader, {fontSize: 9}, {marginBottom: 2}]}>{
+                      startTime.hour + ':' + startTime.minute + ' ' + startTime.amPM + ' - '
+                      + endTime.hour + ':' + endTime.minute + ' ' + startTime.amPM
+                    }</Text>
+                  </View>
                 </View>
-                <View style={{marginLeft: 10}}>
-                  <Text style={styles.eventHeader}>{startTime.hour + ':' + startTime.minute + ' ' + startTime.amPM}</Text>
-                  <Text style={[styles.eventHeader, {fontSize: 10}]}>{item.summary}</Text>
-                  <Text style={[styles.eventHeader, {fontSize: 9}, {marginBottom: 2}]}>{
-                    startTime.hour + ':' + startTime.minute + ' ' + startTime.amPM + ' - '
-                    + endTime.hour + ':' + endTime.minute + ' ' + startTime.amPM
-                  }</Text>
-                </View>
-              </View>
+              </TouchableOpacity>
             );
           }}
         />
       )}
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={{fontWeight:"bold"}}>Event Details</Text>
+
+
+            {selectedEvent && (
+             <View style={styles.container}>
+                
+                <View>
+                  <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {alignItems: "center"}, {justifyContent: "center"}]}>
+                    <Text style={styles.eventDateNumber}>{eventStartTime.day}</Text>
+                    <Text style={styles.eventHeader}>{eventStartTime.monthName}</Text>
+                  </View>
+                </View>
+              
+                <View style={styles.innerContainer}>    
+                  {selectedEvent && (
+                    <View>
+                      <Text>{selectedEvent.summary}</Text>
+                      <View>
+                        <Text style={{paddingTop:10}}>
+                          Time: {""}
+                          {eventStartTime.hour + ':' + eventStartTime.minute + ' ' + eventStartTime.amPM + ' - ' +
+                            eventEndTime.hour + ':' + eventEndTime.minute + ' ' + eventEndTime.amPM}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+            </View>
+            )}
+
+
+            <TouchableOpacity onPress={closeModal}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -109,19 +175,48 @@ const styles = StyleSheet.create({
     alignItems: "center",
     display: "flex",
     flexDirection: "row",
+    marginLeft: 0
   },
   eventDateNumber: {
     fontSize: 18,
     fontWeight: "bold",
     color: 'rgba(255, 255, 255, 1)',
     marginBottom: -3,
-    marginTop: -2
+    marginTop: -2,
+    marginLeft: 0
   },
   eventHeader: {
     fontSize: 12,
     fontWeight: "bold",
     color: 'rgba(255, 255, 255, 1)',
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+  },
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 10,
+    paddingRight: 10
+    },
+  innerContainer: {
+    paddingBottom: 10,
+    paddingTop: 10,
+    paddingLeft: 10,
+    width: 350,
+    height: 100,
+    margin: 5,
+    justifyContent: 'center',
+  }
 })
 
 export default CalendarNode;

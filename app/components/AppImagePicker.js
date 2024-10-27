@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { View, Button, Image, StyleSheet, Alert } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker'; // Use Expo's ImagePicker
 import { fetchProfilePicture, uploadImage } from '../components/profilePictureUtils'; 
-import { auth } from '../navigation/firebase';  
 
-const AppImagePicker = () => {
+const AppImagePicker = ({ onImageUpdate }) => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -19,27 +18,34 @@ const AppImagePicker = () => {
     };
 
     getProfilePicture();
+    requestPermission(); // Request permission for image access
   }, []);
 
+  const requestPermission = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'You need to enable camera access to use this feature.');
+    }
+  };
+
   const pickImage = async () => {
-    const result = await launchImageLibrary({
-      mediaType: 'photo',
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
+      allowsEditing: true,
     });
 
-    if (result.didCancel) {
-      console.log('User cancelled image picker');
-    } else if (result.error) {
-      console.log('ImagePicker Error: ', result.error);
-    } else {
+    if (!result.canceled) {
       const uri = result.assets[0].uri;
+      // Alert.alert("Loading"); Make it so that the user can't cancel this
       setUploading(true);
       try {
-        const downloadURL = await uploadImage(uri);
+        const downloadURL = await uploadImage(uri); // Upload the selected image
         setProfilePicture(downloadURL);
-        Alert.alert('Success', 'Profile picture updated!');
+        Alert.alert("Profile Picture", "Profile Picture changed successfully!")
+        // onImageUpdate(downloadURL); // Pass the image URL back to the parent component
       } catch (error) {
-        Alert.alert('Error', 'Failed to upload profile picture.');
+        Alert.alert('Error', error);
       } finally {
         setUploading(false);
       }
@@ -51,7 +57,7 @@ const AppImagePicker = () => {
       {profilePicture ? (
         <Image source={{ uri: profilePicture }} style={styles.image} />
       ) : (
-        <Image source={{ uri: 'default-placeholder-image-url' }} style={styles.image} />
+        <Image source={require('../assets/tempProfilePhoto.png')} style={styles.image} />
       )}
       <Button title="Change Profile Picture" onPress={pickImage} disabled={uploading} />
     </View>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Image, useWindowDimensions, TouchableWithoutFeedback, Alert } from 'react-native';
 import Screen from '../components/Screen';
-import TempProfilePhoto from '../assets/tempProfilePhoto.png';
 import BadgesLogo from '../assets/badgesLogo.png';
 import RankLogo from '../assets/RankLogo.png';
 import PlanetLogo from '../assets/PlanetLogo.png';
@@ -10,15 +9,12 @@ import { auth } from '../navigation/firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import pointsCheck from '../components/PointsCheck';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
+import { useFocusEffect } from '@react-navigation/native';
 
 function DashboardScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
-
-  const handleSignOut = async () => {
-    await signOut(auth);
-    navigation.navigate('SignIn');
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   const { height } = useWindowDimensions();
 
@@ -31,13 +27,9 @@ function DashboardScreen({ navigation }) {
     };
 
     const fetchProfilePic = async () => {
-      try {
         const url = await fetchProfilePicture();
         setProfilePicture(url);
-      } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        Alert.alert('Error', 'Failed to load profile picture.');
-      }
+        setIsLoading(false);
     };
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -53,6 +45,21 @@ function DashboardScreen({ navigation }) {
     return () => unsubscribe();
   }, []);
 
+  const fetchProfilePic = async () => {
+    const url = await fetchProfilePicture();
+    setProfilePicture(url);
+  };
+
+  const handleFetchProfilePicture = () => {
+    fetchProfilePic(); // Fetch the profile picture when the button is pressed
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      handleFetchProfilePicture();
+    }, [])
+  );
+
   const name = user?.displayName || 'Guest';
 
   return (
@@ -63,18 +70,16 @@ function DashboardScreen({ navigation }) {
           <Text style={[styles.text, { fontSize: 22, fontWeight: 'bold'}]}> {'Dashboard'} </Text>
       </View>
         <TouchableWithoutFeedback
+
           onPress={() => navigation.navigate('Settings')}
         >
           <Image
+          
           source={
             profilePicture
               ? { uri: profilePicture } // Use fetched profile picture URL
               : require('../assets/tempProfilePhoto.png') // Fallback to default image
-          }
-          onError={(error) => {
-            console.error('Image load error: ', error.nativeEvent.error);
-            setProfilePicture(null); // Reset if the image fails to load
-          }}   
+          } 
           style={[styles.profilePicture, { height: height * 0.08 }, { width: height * 0.08 }, { borderRadius: height * 0.045 },]}
           />
         </TouchableWithoutFeedback>
