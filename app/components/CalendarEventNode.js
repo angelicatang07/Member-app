@@ -169,31 +169,12 @@ const CalendarNode = () => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text>Event Details</Text>
-            {selectedEvent && (
-              <View>
-                <Text>{selectedEvent.summary}</Text>
-                <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {alignItems: "center"}, {justifyContent: "center"}]}>
-                  <Text style={styles.eventDateNumber}>{eventStartTime.day}</Text>
-                  <Text style={styles.eventHeader}>{eventStartTime.monthName}</Text>
-                </View>
-                <View>
-                  <Text>
-                    Time: {""}
-                    {
-                      eventStartTime.hour + ':' + eventStartTime.minute + ' ' + eventStartTime.amPM + ' - '
-                      + eventEndTime.hour + ':' + eventEndTime.minute + ' ' + eventStartTime.amPM
-                    }
-                  </Text>
-                </View>
-
-            </View>
-            )}
-            {isAdmin && (
-              <>
+            <Text style={{fontWeight:"bold"}}>Event Details</Text>
+              {isAdmin && 
                 <TouchableOpacity onPress={toggleQrCode}>
                   <Text style={styles.buttonText}>{showHideQRCode}</Text>
                 </TouchableOpacity>
+                }
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
@@ -202,13 +183,39 @@ const CalendarNode = () => {
                     />
                   </View>
                 )}
-              </>
+                {qrVisible && selectedEvent && (
+                  <TouchableOpacity onPress={handleCapture}>
+                    <Text style={styles.buttonText}>Save Image</Text>
+                  </TouchableOpacity>
+                  )}
+
+            {selectedEvent && (
+             <View style={styles.container}>
+                
+                <View>
+                  <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {alignItems: "center"}, {justifyContent: "center"}]}>
+                    <Text style={styles.eventDateNumber}>{eventStartTime.day}</Text>
+                    <Text style={styles.eventHeader}>{eventStartTime.monthName}</Text>
+                  </View>
+                </View>
+              
+                <View style={styles.innerContainer}>    
+                  {selectedEvent && (
+                    <View>
+                      <Text>{selectedEvent.summary}</Text>
+                      <View>
+                        <Text style={{paddingTop:10}}>
+                          Time: {""}
+                          {eventStartTime.hour + ':' + eventStartTime.minute + ' ' + eventStartTime.amPM + ' - ' +
+                            eventEndTime.hour + ':' + eventEndTime.minute + ' ' + eventEndTime.amPM}
+                        </Text>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+            </View>
             )}
-            {qrVisible && selectedEvent && (
-              <TouchableOpacity onPress={handleCapture}>
-                <Text style={styles.buttonText}>Save Image</Text>
-              </TouchableOpacity>
-              )}
 
 
             <TouchableOpacity onPress={closeModal}>
@@ -220,7 +227,6 @@ const CalendarNode = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   eventContainer: {
     backgroundColor: '#6A76DE',
@@ -230,13 +236,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     display: "flex",
     flexDirection: "row",
+    marginLeft: 0
   },
   eventDateNumber: {
     fontSize: 18,
     fontWeight: "bold",
     color: 'rgba(255, 255, 255, 1)',
     marginBottom: -3,
-    marginTop: -2
+    marginTop: -2,
+    marginLeft: 0
   },
   eventHeader: {
     fontSize: 12,
@@ -270,10 +278,15 @@ const styles = StyleSheet.create({
     margin: 5,
     justifyContent: 'center',
   },
+  buttonText: {
+    textAlign: 'center', // Center the text
+    marginTop: 10,
+    marginBottom: 0
+  },
   qrContainer: {
     marginTop: 20, // Add some space above the QR code
     alignItems: 'center', // Center the QR code
   },
-});
+})
 
 export default CalendarNode;
