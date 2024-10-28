@@ -81,7 +81,7 @@ const ReactangleBox = (props) => {
 
             {props.data.picture
             ? <Image src={props.data.picture} style={styles.profilePic} />
-            : <Image source={require("../assets/blankProfile.png")} style={styles.profilePic} />}
+            : <Image source={require("../assets/tempProfilePhoto.png")} style={styles.profilePic} />}
 
             <View style={styles.nameBox}>
                 <Text style={styles.name} adjustsFontSizeToFit={true} numberOfLines={1}>

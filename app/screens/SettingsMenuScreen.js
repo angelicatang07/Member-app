@@ -6,7 +6,7 @@ import Screen from '../components/Screen';
 import { auth } from '../navigation/firebase';
 import { signOut } from 'firebase/auth';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, CommonActions } from '@react-navigation/native';
 
 function SettingsMenuScreen({ navigation }) {
   const [profilePicture, setProfilePicture] = useState(null);
@@ -44,7 +44,12 @@ function SettingsMenuScreen({ navigation }) {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    navigation.navigate('SignIn');
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: 'SignIn' }], 
+      })
+    );
   };
 
   return (
