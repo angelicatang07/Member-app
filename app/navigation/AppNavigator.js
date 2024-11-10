@@ -8,6 +8,7 @@ import AdminScreen from '../screens/AdminScreen';
 import ChallengesNavigator from '../navigation/ChallengesNavigator';
 import DashboardNavigator from './DashboardNavigator';
 import SocialsScreen from '../screens/SocialsScreen';
+import RedeemQRCodeScreen from '../screens/RedeemQRCodeScreen';
 
 import adminCheck from '../components/AdminCheck';
 
@@ -55,6 +56,16 @@ const AppNavigator = () => {
     <Tab.Screen
       name="Calendar"
       component={CalendarScreen}
+      options={{
+        tabBarIcon: ({ size }) => (
+          <Icons name="calendar" size={size} color={'#fff'} />
+        ),
+        title: '',
+      }}
+    />
+      <Tab.Screen
+      name="RedeemQRCode"
+      component={RedeemQRCodeScreen}
       options={{
         tabBarIcon: ({ size }) => (
           <Icons name="calendar" size={size} color={'#fff'} />

@@ -18,16 +18,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ranntern.stemeapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "app/assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.ranntern.stemeapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "097b57c1-d528-43a0-b2d4-7abb9c3ccb00"
+      }
     }
   }
 }

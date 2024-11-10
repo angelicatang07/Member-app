@@ -22,6 +22,7 @@ const AuthNavigator = () => (
     <Tab.Screen name="VerifyEmail" component={VerifyEmailScreen} />
     <Tab.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     <Tab.Screen name="ForgotPasswordScreenResetPassword" component={ForgotPasswordScreenResetPassword} />
+    
   </Tab.Navigator>
 );
 

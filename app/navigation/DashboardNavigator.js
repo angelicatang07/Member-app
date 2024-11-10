@@ -24,6 +24,8 @@ import NeptuneBack from '../screens/NeptuneBack';
 import PlutoBack from '../screens/PlutoBack';
 import Leaderboard from '../screens/Leaderboard';
 
+import QRCodeScanner from '../components/QRScanner';
+
 const Stack = createNativeStackNavigator();
 
 const DashboardNavigator = () => (
@@ -180,6 +182,13 @@ const DashboardNavigator = () => (
       }}
       name="PlutoBack"
       component={PlutoBack}
+    />
+    <Stack.Screen
+      options={{
+        headerShown: false,
+      }}
+      name="QR Code Scanner"
+      component={QRCodeScanner}
     />
   </Stack.Navigator>
 );

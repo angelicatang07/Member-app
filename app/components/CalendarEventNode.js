@@ -18,9 +18,11 @@ const CalendarNode = () => {
   const [showHideQRCode, setShowHideQRCode] = useState("Show QR Code")
   const qrCodeRef = useRef();
 
-  // Function to fetch events from the backe
+  
+    // Function to fetch events from the backe
   const fetchEvents = async (key) => {
     try {
+      // this is still the old link
       const serverAddress = 'https://testrunsteme-d7epe6eubzabbpgk.eastus-01.azurewebsites.net/';
       let response = await fetch(serverAddress + key);
       const data = await response.json();
@@ -45,6 +47,9 @@ const CalendarNode = () => {
 
     checkAdminStatus();
   }, []);
+
+  
+
 
   const dateFormat = (unformattedDate) => {
     const months = [
@@ -178,7 +183,7 @@ const CalendarNode = () => {
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
-                      value={"https://www.youtube.com/watch?v=dQw4w9WgXcQ"} // it's just a rick roll for now
+                      value={"A2k7X9wz|100|new Test Event New|4:45|6:00|3"} // it's hardcoded for now
                       size={150}
                     />
                   </View>

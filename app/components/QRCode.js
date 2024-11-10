@@ -6,7 +6,7 @@ import * as MediaLibrary from 'expo-media-library';  // To save the image
 import Screen from '../components/Screen';
 
 const QRCodeDisplay = ({ navigation, route }) => {
-  const { data } = route.params; 
+  const { data } = route.params || {}; 
   const qrCodeRef = useRef();
   const qrData = data;
 
