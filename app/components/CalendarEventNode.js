@@ -140,18 +140,28 @@ const CalendarNode = () => {
         <ActivityIndicator size="large" color="#00ff00" />
       ) : (
         <FlatList
+        horizontal= {true}
           data={events}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => {
             const startTime = dateFormat(item.start.dateTime);
             const endTime = dateFormat(item.end.dateTime);
             return (
+
+              
               <TouchableOpacity onPress={() => openModal(item, startTime, endTime)}>
+               <View style={[{flexDirection: 'column'}]}>
+
+
+
                 <View style={styles.eventContainer}>
-                  <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {marginLeft: 10}, {alignItems: "center"}, {justifyContent: "center"}]}>
+                  <View style={[{backgroundColor: '#939CEB'}, {height: 50}, {width: 50}, {borderRadius: 25}, {marginLeft: 10}, {alignItems: "center"}, {justifyContent: "center"}, ]}>
                     <Text style={styles.eventDateNumber}>{startTime.day}</Text>
                     <Text style={styles.eventHeader}>{startTime.monthName}</Text>
                   </View>
+
+
+
                   <View style={{marginLeft: 10}}>
                     <Text style={styles.eventHeader}>{startTime.hour + ':' + startTime.minute + ' ' + startTime.amPM}</Text>
                     <Text style={[styles.eventHeader, {fontSize: 10}]}>{item.summary}</Text>
@@ -160,6 +170,7 @@ const CalendarNode = () => {
                       + endTime.hour + ':' + endTime.minute + ' ' + startTime.amPM
                     }</Text>
                   </View>
+                </View>
                 </View>
               </TouchableOpacity>
             );
@@ -240,8 +251,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     display: "flex",
+    paddingHorizontal: 10,
     flexDirection: "row",
-    marginLeft: 0
+    margin: 5,
+    overflow: 'hidden'
   },
   eventDateNumber: {
     fontSize: 18,
@@ -261,6 +274,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flexDirection: 'row-reverse'
   },
   modalContent: {
     width: 300,
