@@ -55,7 +55,7 @@ function SignInScreen({ navigation }) {
           errorMessage = 'Too many failed login attempts. Please try again later.';
           break;
         default:
-          errorMessage = 'An unexpected error occurred. Please try again.';
+          errorMessage = error.code;  // get rid of this in production
           break;
       }
   

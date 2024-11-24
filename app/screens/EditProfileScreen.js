@@ -39,6 +39,7 @@ function EditProfileScreen(props) {
       }
     }*/
 
+    /*
     // Update country in database
     try {
       await set(ref(db, 'users/' + user.uid + '/country'), country);
@@ -50,6 +51,7 @@ function EditProfileScreen(props) {
       await set(ref(db, 'users/' + user.uid + '/gender'), gender);
     } catch (error) {
     }
+    */
 
     Alert.alert("Information updated successfully!")
 
@@ -84,19 +86,19 @@ function EditProfileScreen(props) {
           textContentType="emailAddress"
         />
 
-        {/* Country Picker */}
+        {/*
         <AppFormPicker 
           name="country" 
           items={countryList} 
           placeholder="Country" 
         />
 
-        {/* Gender Picker */}
         <AppFormPicker 
           name="gender" 
           items={genderOptions} 
           placeholder="Gender" 
         />
+        */}
 
         {/* Unified Submit Button */}
         <SubmitButton text={'Update Profile'} />

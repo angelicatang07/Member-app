@@ -22,7 +22,6 @@ const CalendarNode = () => {
     // Function to fetch events from the backe
   const fetchEvents = async (key) => {
     try {
-      // this is still the old link
       const serverAddress = 'https://testrunsteme-d7epe6eubzabbpgk.eastus-01.azurewebsites.net/';
       let response = await fetch(serverAddress + key);
       const data = await response.json();
@@ -50,40 +49,41 @@ const CalendarNode = () => {
 
   
 
-
   const dateFormat = (unformattedDate) => {
+    if (!unformattedDate) {
+      // console.error('Invalid date:', unformattedDate); // Log the invalid date for debugging
+      return {}; // Return an empty object to prevent further errors
+    }
+  
     const months = [
-      'JAN',
-      'FEB',
-      'MAR',
-      'APR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AUG',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DEC',
+      'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
     ];
-
-    const date = unformattedDate.split('T')[0].split('-');
-    const time = unformattedDate.split('T')[1].split('-')[0].split(':');
-    const isPM = time[0] > 12;
-
+  
+    const dateParts = unformattedDate.split('T')[0].split('-');
+    const timeParts = unformattedDate.split('T')[1]?.split('-')[0]?.split(':');
+  
+    // Check if date and time parts are valid
+    if (dateParts.length < 3 || !timeParts || timeParts.length < 3) {
+      console.error('Invalid date or time format:', unformattedDate); // Log the invalid date for debugging
+      return {};
+    }
+  
+    const isPM = timeParts[0] > 12;
+  
     const data = {
-      year: date[0],
-      month: date[1],
-      monthName: months[parseInt(date[1]) - 1],
-      day: date[2],
-      hour: isPM ? time[0] - 12 : time[0],
-      minute: time[1],
-      second: time[2],
+      year: dateParts[0],
+      month: dateParts[1],
+      monthName: months[parseInt(dateParts[1]) - 1],
+      day: dateParts[2],
+      hour: isPM ? timeParts[0] - 12 : timeParts[0],
+      minute: timeParts[1],
+      second: timeParts[2],
       amPM: isPM ? 'PM' : 'AM',
     };
-
+  
     return data;
-  }
+  };
+  
 
   const openModal = (event, eventStart, eventEnd) => {
     setSelectedEvent(event);
@@ -122,6 +122,16 @@ const CalendarNode = () => {
     }
   };
   
+
+  function generateRandomAsciiCode() {
+    let code = "";
+    for (let i = 0; i < 8; i++) {
+      const randomAscii = Math.floor(Math.random() * 94) + 33;
+      code += String.fromCharCode(randomAscii);
+    }
+    return code;
+  }
+
 
   const toggleQrCode = () => {
     setQrVisible(!qrVisible); // Toggle QR code visibility
@@ -194,7 +204,7 @@ const CalendarNode = () => {
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
-                      value={"A2k7X9wz|100|new Test Event New|4:45|6:00|3"} // it's hardcoded for now
+                      value={"A2k7X9wz|05042008|4:45|6:00|100|Test Event 1|3"} // it's hardcoded for now
                       size={150}
                     />
                   </View>
