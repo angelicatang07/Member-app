@@ -8,7 +8,7 @@ function BadgesScreen(props) {
   return (
     <Screen>
       <Badge badge={'Mercury Badge'} color={'gold'} completed={true} />
-      <Badge badge={'STEN - E Badge'} color={'silver'} />
+      <Badge badge={'STEM - E Badge'} color={'silver'} />
     </Screen>
   );
 }
