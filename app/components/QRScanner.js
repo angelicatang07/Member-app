@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { Camera, CameraView } from "expo-camera";
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "@react-navigation/native";
 import { collection, doc, getDoc, setDoc, getFirestore, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const navigation = useNavigation();
   const [userId, setUserId] = useState(null);
-  const [userName, setUserName] = useState(null);  // New state for user's name
+  const [userName, setUserName] = useState(null);
+  const navigation = useNavigation();
+
+  const db = getFirestore();
 
   useEffect(() => {
     const getCameraPermissions = async () => {
@@ -21,18 +23,19 @@ export default function App() {
     getCameraPermissions();
   }, []);
 
-  const db = getFirestore();
-
   useEffect(() => {
     const auth = getAuth();
     const currentUser = auth.currentUser;
     if (currentUser) {
       setUserId(currentUser.uid);
-      setUserName(currentUser.displayName || 'Guest'); // Set the user's name or default to 'Guest'
+      setUserName(currentUser.displayName || "Guest");
     } else {
       console.log("No user is signed in.");
     }
   }, []);
+
+  useEffect(() => {
+  }, [scanned]);
 
   async function addEvent(userId, points, name) {
     const userRef = doc(db, "users", userId);
@@ -40,7 +43,7 @@ export default function App() {
 
     if (!userSnapshot.exists()) {
       await setDoc(userRef, {
-        name: userName
+        name: userName,
       });
     }
 
@@ -51,7 +54,7 @@ export default function App() {
 
     if (!testEventSnapshot.exists()) {
       await setDoc(testEventRef, {
-        points: points
+        points: points,
       });
     }
   }
@@ -71,46 +74,65 @@ export default function App() {
     await setDoc(userRef, { points: totalPoints }, { merge: true });
   }
 
+  /*
   function generateRandomAsciiCode() {
-    let code = '';
+    let code = "";
     for (let i = 0; i < 8; i++) {
       const randomAscii = Math.floor(Math.random() * 94) + 33;
       code += String.fromCharCode(randomAscii);
     }
     return code;
   }
+    */
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    setScanned(true);
-    const dataArray = data.split('|');
-    const [verifactionCode, points, eventName, startTime, endTime, timesRedeemable] = dataArray.map(item => item.trim());
+    setScanned(true); // Prevent further scans immediately
+
+    const dataArray = data.split("|");
+    const [verificationCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map((item) => item.trim());
 
     const eventsCollectionRef = collection(doc(db, "users", userId), "Events");
     const eventsSnapshot = await getDocs(eventsCollectionRef);
 
-    const eventNamesArray = [];
+    var eventExists = false;
+    const eventWithTime = `${eventName}|${date}|${startTime}|${endTime}`;
 
     eventsSnapshot.forEach((doc) => {
-      const eventNameFromId = doc.id.split('|')[0];
+      const eventNameFromId = doc.id;  // no splitting, use the full id
+      if (eventNameFromId === eventWithTime) {
+        eventExists = true;
+      }
+    });
+
+    const eventNamesArray = [];
+    eventsSnapshot.forEach((doc) => {
+      const eventNameFromId = doc.id.split("|")[0];
       eventNamesArray.push(eventNameFromId);
     });
-    const timesInArray = eventNamesArray.filter(item => item === eventName).length;
 
-    if (verifactionCode === "A2k7X9wz" && timesInArray < parseInt(timesRedeemable, 10)) {
-      alert("QR Code Redeemed Successfully!");
+    const timesInArray = eventNamesArray.filter((item) => item === eventName).length;
 
-      const randomCode = generateRandomAsciiCode();
-      const eventWithCode = `${eventName}|${randomCode}`;
-
-      await addEvent(userId, points, eventWithCode);
+    if (verificationCode === "A2k7X9wz" && timesInArray < parseInt(timesRedeemable, 10) && !eventExists) {
+      console.log("1");
+      await addEvent(userId, points, eventWithTime);
       await updateUserPoints(userId);
 
-      navigation.navigate('RedeemQRCode', { data: `${data}` });
+      navigation.navigate("RedeemQRCode", { data: `${data}` });
+
     } else if (timesInArray >= parseInt(timesRedeemable, 10)) {
-      alert("The event has already been claimed the maximum amount of times");
+      navigation.navigate('RedeemQRCode', {data: "error|The event has already been claimed the maximum amount of times."})
+      console.log("2");
+      // alert("The event has already been claimed the maximum amount of times.");
+    } else if (eventExists) {
+      navigation.navigate('RedeemQRCode', {data: "error|You have already claimed this QR Code."})
+      console.log("3");
+      // alert("You have already claimed this QR Code.")
     } else {
-      alert("Invalid QR Code");
+      navigation.navigate('RedeemQRCode', {data: "error|Invalid QR Code."})
+      console.log("4");
+      // alert("Invalid QR Code.");
     }
+    setScanned(false);
   };
 
   if (hasPermission === null) {
@@ -129,9 +151,6 @@ export default function App() {
         }}
         style={StyleSheet.absoluteFillObject}
       />
-      {scanned && (
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
-      )}
     </View>
   );
 }
