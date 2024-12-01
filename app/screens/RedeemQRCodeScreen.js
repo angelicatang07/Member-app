@@ -7,7 +7,7 @@ function RedeemQRCodeScreen({ navigation, route }) {
     const dataArray = data.split('|');
     var [verifactionCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map(item => item.trim());
 
-    if (date.length == 8){
+    if (date.length == 8 || date.length == 0){
        // Alert.alert("Success", "QR Code scanned successfully!")
     }
     else{

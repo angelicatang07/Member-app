@@ -149,25 +149,39 @@ const fetchProfilePicture = async (picId) => {
 };
 
 async function fetchLeaderboardData() {
-    const q = await query(collection(db, "users"));
+    const q = query(collection(db, "users"));
     const querySnapshot = await getDocs(q);
 
     const sortedData = querySnapshot.docs
-        .map(doc => ({ id: doc.id, name: doc.name ? doc.name : "Unnamed", ...doc.data() }))
-        .filter(user => user.points !== undefined)
+        .map(doc => ({
+            id: doc.id,
+            name: doc.data().name || "Unnamed",
+            points: doc.data().points || 0
+        }))
         .sort((a, b) => b.points - a.points);
-    
-    sortedData.forEach(async (user, index) => {
-        const authUser = auth.currentUser;
-        user.isGlowing = user.id === auth.currentUser.uid;
-        
-        user.placement = index + 1;
 
-        user.picture = await fetchProfilePicture(user.id);
-    });
+    // Determine current user placement
+    const currentUserId = auth.currentUser.uid;
+    let currentUserPlacement = null;
 
-    return sortedData;
+    const leaderboardWithPlacement = await Promise.all(
+        sortedData.map(async (user, index) => {
+            user.placement = index + 1;
+            user.isGlowing = user.id === currentUserId;
+            user.picture = await fetchProfilePicture(user.id);
+
+            if (user.id === currentUserId) {
+                currentUserPlacement = user.placement;
+            }
+
+            return user;
+        })
+    );
+
+    console.log(`Current user placement: ${currentUserPlacement}`);
+    return leaderboardWithPlacement;
 }
+
 
 function Leaderboard({ navigation }) {
     const [leaderboardData, setLeaderboardData] = useState(null);

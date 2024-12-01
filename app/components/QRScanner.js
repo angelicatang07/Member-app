@@ -88,6 +88,7 @@ export default function App() {
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true); // Prevent further scans immediately
 
+    // we take the QR Code data and parse it
     const dataArray = data.split("|");
     const [verificationCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map((item) => item.trim());
 
@@ -95,42 +96,45 @@ export default function App() {
     const eventsSnapshot = await getDocs(eventsCollectionRef);
 
     var eventExists = false;
+    // eventWithTime is how it appears in firebase
     const eventWithTime = `${eventName}|${date}|${startTime}|${endTime}`;
 
+    // here, we are searching through firebase. If the user is found to have that exact event name (with the same date), the eventExists variable is set to True
     eventsSnapshot.forEach((doc) => {
-      const eventNameFromId = doc.id;  // no splitting, use the full id
+      const eventNameFromId = doc.id;  
       if (eventNameFromId === eventWithTime) {
         eventExists = true;
       }
     });
 
+    // what we are doing here is taking only the information before the first |, and putting it in an array
+    // this array contains all of the event names, but not information such as the time, date, etc.
+    // ex: ["Mentor Meeting", "Mentor Meeting", "Other Event"]
     const eventNamesArray = [];
     eventsSnapshot.forEach((doc) => {
       const eventNameFromId = doc.id.split("|")[0];
       eventNamesArray.push(eventNameFromId);
     });
 
+    // this sees how many times the event being scanned is already in firebase by checking how many times it's in the aray
     const timesInArray = eventNamesArray.filter((item) => item === eventName).length;
 
+    // if the code is valid, timesInArray is less than timesRedeemable, and the event is not in the array
     if (verificationCode === "A2k7X9wz" && timesInArray < parseInt(timesRedeemable, 10) && !eventExists) {
-      console.log("1");
       await addEvent(userId, points, eventWithTime);
       await updateUserPoints(userId);
 
       navigation.navigate("RedeemQRCode", { data: `${data}` });
 
+      // if the event is in firebase too many times
     } else if (timesInArray >= parseInt(timesRedeemable, 10)) {
       navigation.navigate('RedeemQRCode', {data: "error|The event has already been claimed the maximum amount of times."})
-      console.log("2");
-      // alert("The event has already been claimed the maximum amount of times.");
+      // if the user has already claimed this specific QR Code
     } else if (eventExists) {
       navigation.navigate('RedeemQRCode', {data: "error|You have already claimed this QR Code."})
-      console.log("3");
-      // alert("You have already claimed this QR Code.")
+    // if the verifaction code is invalid or something else occurs
     } else {
       navigation.navigate('RedeemQRCode', {data: "error|Invalid QR Code."})
-      console.log("4");
-      // alert("Invalid QR Code.");
     }
     setScanned(false);
   };

@@ -20,19 +20,27 @@ const CalendarNode = () => {
 
   
     // Function to fetch events from the backe
-  const fetchEvents = async (key) => {
-    try {
-      const serverAddress = 'https://testrunsteme-d7epe6eubzabbpgk.eastus-01.azurewebsites.net/';
-      let response = await fetch(serverAddress + key);
-      const data = await response.json();
-      setEvents(events.concat(data));
-      setLoading(false); // Disable loading spinner after fetching
-    } catch (error) {
-      console.error('Error fetching events:', error);
-      setLoading(false);
-    }
-  };
-
+    const fetchEvents = async (key) => {
+      try {
+        const serverAddress = 'https://testrunsteme-d7epe6eubzabbpgk.eastus-01.azurewebsites.net/';
+        let response = await fetch(serverAddress + key);
+        const data = await response.json();
+    
+        // Filter out events with invalid date formats
+        const validEvents = data.filter(event => {
+          const startTime = dateFormat(event.start.dateTime);
+          const endTime = dateFormat(event.end.dateTime);
+          return startTime !== "error" && Object.keys(startTime).length > 0 && endTime !== "error" && Object.keys(endTime).length > 0;
+        });
+    
+        setEvents(events.concat(validEvents));
+        setLoading(false); // Disable loading spinner after fetching
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        setLoading(false);
+      }
+    };
+    
   // Use `useEffect` to automatically fetch events when the screen loads
   useEffect(() => {
     fetchEvents('general'); // Automatically fetch events when component mounts
@@ -51,11 +59,11 @@ const CalendarNode = () => {
 
   const dateFormat = (unformattedDate) => {
     if (!unformattedDate) {
-      // console.error('Invalid date:', unformattedDate); // Log the invalid date for debugging
-      return {}; // Return an empty object to prevent further errors
+      return "error"; // Return an empty object to prevent further errors
     }
   
     const months = [
+      'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
       'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
     ];
   
@@ -64,7 +72,6 @@ const CalendarNode = () => {
   
     // Check if date and time parts are valid
     if (dateParts.length < 3 || !timeParts || timeParts.length < 3) {
-      console.error('Invalid date or time format:', unformattedDate); // Log the invalid date for debugging
       return {};
     }
   
@@ -78,11 +85,21 @@ const CalendarNode = () => {
       hour: isPM ? timeParts[0] - 12 : timeParts[0],
       minute: timeParts[1],
       second: timeParts[2],
+      year: dateParts[0],
+      month: dateParts[1],
+      monthName: months[parseInt(dateParts[1]) - 1],
+      day: dateParts[2],
+      hour: isPM ? timeParts[0] - 12 : timeParts[0],
+      minute: timeParts[1],
+      second: timeParts[2],
       amPM: isPM ? 'PM' : 'AM',
     };
   
+  
     return data;
   };
+  
+
   
 
   const openModal = (event, eventStart, eventEnd) => {
@@ -121,17 +138,6 @@ const CalendarNode = () => {
       console.error('Failed to capture screenshot', error);
     }
   };
-  
-
-  function generateRandomAsciiCode() {
-    let code = "";
-    for (let i = 0; i < 8; i++) {
-      const randomAscii = Math.floor(Math.random() * 94) + 33;
-      code += String.fromCharCode(randomAscii);
-    }
-    return code;
-  }
-
 
   const toggleQrCode = () => {
     setQrVisible(!qrVisible); // Toggle QR code visibility

@@ -1,17 +1,28 @@
 import { auth, app } from '../navigation/firebase';
-import { doc, getFirestore, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, query } from 'firebase/firestore';
 
 const db = getFirestore(app);
 
-const pointsCheck = async () => {
+const placementCheck = async () => {
     const userId = await waitForUserId();
-    const userDoc = await getDoc(doc(db, `users/${userId}`));
-  
-    if (userDoc.data() === undefined) return null;
-    const points = userDoc.data().points; 
-  
-    return points;
-}
+    if (!userId) {
+        return null;
+    }
+
+    // Fetch all users and sort them by points in descending order
+    const q = query(collection(db, "users"));
+    const querySnapshot = await getDocs(q);
+
+    const sortedUsers = querySnapshot.docs
+        .map(doc => ({ id: doc.id, points: doc.data().points || 0 }))
+        .filter(user => user.points !== undefined)
+        .sort((a, b) => b.points - a.points);
+
+    // Find the current user's placement
+    const placement = sortedUsers.findIndex(user => user.id === userId) + 1;
+    
+    return placement || null; // Return placement or null if user is not found
+};
 
 async function waitForUserId() {
     const getUserId = () => {
@@ -41,4 +52,4 @@ async function waitForUserId() {
     }
 }
 
-export default pointsCheck;
+export default placementCheck;
