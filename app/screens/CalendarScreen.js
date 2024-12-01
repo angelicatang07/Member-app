@@ -8,7 +8,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
 import CalendarNode from '../components/CalendarEventNode';
 
-const CalendarScreen = ({ navigation, props }) => {
+const CalendarScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [profilePicture, setProfilePicture] = useState(null);
   const [isLoading, setIsLoading] = useState(true);

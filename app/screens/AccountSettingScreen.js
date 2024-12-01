@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // For pencil icon
 import AppImagePicker from '../components/AppImagePicker';
 import MenuButton from '../components/MenuButton';
-import Screen from '../components/Screen';
 import { auth } from '../navigation/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getDatabase, ref, get, update } from 'firebase/database'; // Change the import
@@ -30,11 +29,8 @@ function AccountSettingScreen({ navigation }) {
               setDescription(userData.description);
             }
           }
-          else{
-            // setDescription("Click the pencil to write a description.")
-          }
         } catch (error) {
-          // console.error("Error fetching user data:", error);
+          console.error("Error fetching user data:", error);
         }
       }
     });
@@ -68,87 +64,91 @@ function AccountSettingScreen({ navigation }) {
                 setDescription(tempDescription); // Update local description
               })
               .catch((error) => {
-                // console.error("Error updating description:", error);
+                console.error("Error updating description:", error);
               });
           }
         })
         .catch((error) => {
-          // console.error("Error fetching user data:", error);
+          console.error("Error fetching user data:", error);
         });
     }
     setIsEditing(!isEditing);
   };
-  
-  
-
 
   return (
-    <Screen style={styles.screen}>
-      <AppImagePicker width={200} height={200} />
-      <View style={styles.descriptionContainer}>
-        <View style={styles.topBar}>
-          <Text style={styles.label}>Description</Text>
-          <TouchableOpacity onPress={toggleEditMode}>
-            <MaterialIcons name={isEditing ? "check" : "edit"} size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+    // Replace ImageBackground with a solid purple View
+    <View style={styles.background}>
+      <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+        <AppImagePicker width={200} height={200} />
+        <View style={styles.descriptionContainer}>
+          <View style={styles.topBar}>
+            <Text style={styles.label}>Description</Text>
+            <TouchableOpacity onPress={toggleEditMode}>
+              <MaterialIcons name={isEditing ? "check" : "edit"} size={24} color="white" />
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.descriptionBox}>
-          {isEditing ? (
-            <TextInput
-              style={styles.descriptionInput}
-              value={tempDescription}
-              onChangeText={setTempDescription}
-              placeholder="Edit description..." 
-              multiline
-            />
-          ) : (
-            <Text style={styles.descriptionText}>{description}</Text>
-          )}
+          <View style={styles.descriptionBox}>
+            {isEditing ? (
+              <TextInput
+                style={styles.descriptionInput}
+                value={tempDescription}
+                onChangeText={setTempDescription}
+                placeholder="Edit description..." 
+                multiline
+              />
+            ) : (
+              <Text style={styles.descriptionText}>{description}</Text>
+            )}
+          </View>
         </View>
-      </View>
-      <View style={styles.detailsContainer}>
-        <Text style={styles.text}>Full Name: {name}</Text>
-        <Text style={styles.text}>Email address: {email}</Text>
-      </View>
-      <MenuButton
-        text={'Edit Profile'}
-        type={'SECONDARY'}
-        style={styles.button}
-        onPress={() => navigation.navigate('Edit Profile')}
-      />
-      <MenuButton
-        text={'Reset Password'}
-        type={'SECONDARY'}
-        style={styles.button}
-        onPress={() => navigation.navigate('Password Reset')}
-      />
-      <MenuButton
-        text={'Become an Admin'}
-        type={'SECONDARY'}
-        style={styles.button}
-        onPress={() => navigation.navigate('Become an Admin')}
-      />
-      <MenuButton
-        text={'Delete Account'}
-        type={'SECONDARY'}
-        style={[{ backgroundColor: '#d40f0f', fontSize: 20 }, styles.button]}
-      />
-    </Screen>
+        <View style={styles.detailsContainer}>
+          <Text style={styles.text}>Full Name: {name}</Text>
+          <Text style={styles.text}>Email address: {email}</Text>
+        </View>
+        <MenuButton
+          text={'Edit Profile'}
+          type={'SECONDARY'}
+          style={styles.button}
+          onPress={() => navigation.navigate('Edit Profile')}
+        />
+        <MenuButton
+          text={'Reset Password'}
+          type={'SECONDARY'}
+          style={styles.button}
+          onPress={() => navigation.navigate('Password Reset')}
+        />
+        <MenuButton
+          text={'Become an Admin'}
+          type={'SECONDARY'}
+          style={styles.button}
+          onPress={() => navigation.navigate('Become an Admin')}
+        />
+        <MenuButton
+          text={'Delete Account'}
+          type={'SECONDARY'}
+          style={[{ backgroundColor: '#d40f0f', fontSize: 20 }, styles.button]}
+        />
+      </ScrollView>
+    </View>
   );
 }
 
 export default AccountSettingScreen;
 
 const styles = StyleSheet.create({
-  screen: {
+  background: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'purple', // Solid purple background
     paddingTop: 120,
   },
+  scrollViewContainer: {
+    paddingBottom: 20,  // Add some padding at the bottom for better spacing
+    paddingHorizontal: '5%',
+  },
   descriptionContainer: {
-    width: '90%',
+    width: '100%',
     marginBottom: 20,
   },
   topBar: {

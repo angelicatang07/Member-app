@@ -44,12 +44,15 @@ function SettingsMenuScreen({ navigation }) {
 
   const handleSignOut = async () => {
     await signOut(auth);
+    navigation.navigate('SignIn')
+    /* app was crashing when we did this
     navigation.dispatch(
       CommonActions.reset({
         index: 0,
         routes: [{ name: 'SignIn' }], 
       })
     );
+    */
   };
 
   return (
