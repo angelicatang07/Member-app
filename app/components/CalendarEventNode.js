@@ -64,6 +64,7 @@ const CalendarNode = () => {
   
     const months = [
       'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+      'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
     ];
   
     const dateParts = unformattedDate.split('T')[0].split('-');
@@ -84,10 +85,20 @@ const CalendarNode = () => {
       hour: isPM ? timeParts[0] - 12 : timeParts[0],
       minute: timeParts[1],
       second: timeParts[2],
+      year: dateParts[0],
+      month: dateParts[1],
+      monthName: months[parseInt(dateParts[1]) - 1],
+      day: dateParts[2],
+      hour: isPM ? timeParts[0] - 12 : timeParts[0],
+      minute: timeParts[1],
+      second: timeParts[2],
       amPM: isPM ? 'PM' : 'AM',
     };
   
+  
     return data;
+  };
+  
   };
   
 
@@ -199,6 +210,7 @@ const CalendarNode = () => {
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
+                      value={"A2k7X9wz|05042008|4:45|6:00|100|Test Event 1|3"} // it's hardcoded for now
                       value={"A2k7X9wz|05042008|4:45|6:00|100|Test Event 1|3"} // it's hardcoded for now
                       size={150}
                     />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { Camera, CameraView } from "expo-camera";
 import { useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { collection, doc, getDoc, setDoc, getFirestore, getDocs } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -9,6 +10,10 @@ export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [userName, setUserName] = useState(null);
+  const navigation = useNavigation();
+
+  const db = getFirestore();
   const [userName, setUserName] = useState(null);
   const navigation = useNavigation();
 
@@ -29,10 +34,14 @@ export default function App() {
     if (currentUser) {
       setUserId(currentUser.uid);
       setUserName(currentUser.displayName || "Guest");
+      setUserName(currentUser.displayName || "Guest");
     } else {
       console.log("No user is signed in.");
     }
   }, []);
+
+  useEffect(() => {
+  }, [scanned]);
 
   useEffect(() => {
   }, [scanned]);
@@ -44,6 +53,7 @@ export default function App() {
     if (!userSnapshot.exists()) {
       await setDoc(userRef, {
         name: userName,
+        name: userName,
       });
     }
 
@@ -54,6 +64,7 @@ export default function App() {
 
     if (!testEventSnapshot.exists()) {
       await setDoc(testEventRef, {
+        points: points,
         points: points,
       });
     }
@@ -75,7 +86,9 @@ export default function App() {
   }
 
   /*
+  /*
   function generateRandomAsciiCode() {
+    let code = "";
     let code = "";
     for (let i = 0; i < 8; i++) {
       const randomAscii = Math.floor(Math.random() * 94) + 33;
@@ -83,6 +96,7 @@ export default function App() {
     }
     return code;
   }
+    */
     */
 
   const handleBarCodeScanned = async ({ type, data }) => {
@@ -113,6 +127,7 @@ export default function App() {
     const eventNamesArray = [];
     eventsSnapshot.forEach((doc) => {
       const eventNameFromId = doc.id.split("|")[0];
+      const eventNameFromId = doc.id.split("|")[0];
       eventNamesArray.push(eventNameFromId);
     });
 
@@ -136,6 +151,7 @@ export default function App() {
     } else {
       navigation.navigate('RedeemQRCode', {data: "error|Invalid QR Code."})
     }
+    setScanned(false);
     setScanned(false);
   };
 
