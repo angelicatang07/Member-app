@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
-import { View, StyleSheet, Text, TouchableOpacity, Alert } from 'react-native';
 import Screen from '../components/Screen';
 
 function RedeemQRCodeScreen({ navigation, route }) {
     const { data } = route.params || { data: "||||" }; 
     const dataArray = data.split('|');
     var [verifactionCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map(item => item.trim());
-    var [verifactionCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map(item => item.trim());
 
-    // note - the alerts should be in QRScanner.js. However, the behavior was really buggy, so for now, they are here
-    // there should also be an alert upon successfully scanning the QR Code, but the implementation was buggy so that is commented out
     if (date.length == 8 || date.length == 0){
        // Alert.alert("Success", "QR Code scanned successfully!")
     }
@@ -46,12 +42,6 @@ function RedeemQRCodeScreen({ navigation, route }) {
 
                 <Text style={styles.label}>Date:</Text>
                 <Text style={styles.value}>{formatDate(date)}</Text>
-                
-                <Text style={styles.label}>Points:</Text>
-                <Text style={styles.value}>{points}</Text>
-
-                <Text style={styles.label}>Date:</Text>
-                <Text style={styles.value}>{formatDate(date)}</Text>
 
                 <Text style={styles.label}>Start Time:</Text>
                 <Text style={styles.value}>{startTime}</Text>
@@ -62,7 +52,6 @@ function RedeemQRCodeScreen({ navigation, route }) {
                 <Text style={styles.label}>Times Redeemable:</Text>
                 <Text style={styles.value}>{timesRedeemable}</Text>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('QR Code Scanner', { data })} style={styles.button}>
             <TouchableOpacity onPress={() => navigation.navigate('QR Code Scanner', { data })} style={styles.button}>
                 <Text style={styles.buttonText}>Scan QR Code</Text>
             </TouchableOpacity>

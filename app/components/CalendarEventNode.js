@@ -99,7 +99,7 @@ const CalendarNode = () => {
     return data;
   };
   
-  };
+
   
 
   const openModal = (event, eventStart, eventEnd) => {
@@ -210,7 +210,6 @@ const CalendarNode = () => {
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
-                      value={"A2k7X9wz|05042008|4:45|6:00|100|Test Event 1|3"} // it's hardcoded for now
                       value={"A2k7X9wz|05042008|4:45|6:00|100|Test Event 1|3"} // it's hardcoded for now
                       size={150}
                     />
