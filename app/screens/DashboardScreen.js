@@ -10,6 +10,7 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import pointsCheck from '../components/PointsCheck';
 import { fetchProfilePicture } from '../components/profilePictureUtils';
 import { useFocusEffect } from '@react-navigation/native';
+import placementCheck from '../components/placementCheck';
 
 function DashboardScreen({ navigation }) {
   const [user, setUser] = useState(null);
@@ -19,13 +20,9 @@ function DashboardScreen({ navigation }) {
   const { height } = useWindowDimensions();
 
   const [points, setPoints] = useState(null);
+  const [placement, setPlacement] = useState(null);
 
   useEffect(() => {
-    const checkPoints = async () => {
-      const _points = await pointsCheck();
-      setPoints(_points ? _points : 0);
-    };
-
     const fetchProfilePic = async () => {
         const url = await fetchProfilePicture();
         setProfilePicture(url);
@@ -41,7 +38,7 @@ function DashboardScreen({ navigation }) {
       }
     });
 
-    checkPoints();
+    // checkPoints();
     return () => unsubscribe();
   }, []);
 
@@ -56,7 +53,20 @@ function DashboardScreen({ navigation }) {
 
   useFocusEffect(
     React.useCallback(() => {
-      handleFetchProfilePicture();
+      const fetchData = async () => {
+        await handleFetchProfilePicture();
+        const _points = await pointsCheck();
+        setPoints(_points ? _points : 0);
+
+        const __placement = await placementCheck();
+        setPlacement(__placement ? __placement : 0);
+      };
+  
+      fetchData();
+  
+      return () => {
+        // Cleanup if necessary
+      };
     }, [])
   );
 
@@ -106,7 +116,7 @@ function DashboardScreen({ navigation }) {
           </TouchableWithoutFeedback>
         </View>
         <View style={styles.rankLogoText}>
-          <Text style={styles.rank}>{'Rank 125'}</Text>
+          <Text style={styles.rank}>{'Rank ' + placement}</Text>
           <Text style={styles.points}>{points + ' Points'}</Text>
         </View>
       </View>

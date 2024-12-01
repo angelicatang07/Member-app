@@ -7,7 +7,9 @@ function RedeemQRCodeScreen({ navigation, route }) {
     const dataArray = data.split('|');
     var [verifactionCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map(item => item.trim());
 
-    if (date.length == 8){
+    // note - the alerts should be in QRScanner.js. However, the behavior was really buggy, so for now, they are here
+    // there should also be an alert upon successfully scanning the QR Code, but the implementation was buggy so that is commented out
+    if (date.length == 8 || date.length == 0){
        // Alert.alert("Success", "QR Code scanned successfully!")
     }
     else{
