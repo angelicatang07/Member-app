@@ -31,7 +31,7 @@ function PlanetFront({ navigation, planetPicture, points, planetName, navigateTo
                 style={styles.planet}
             />
 
-<ProgressMarker currentIndex={currentIndex} totalDots={totalScreens} /> 
+<ProgressMarker currentIndex={currentIndex-1} totalDots={totalScreens} /> 
         </View>
     );
 }

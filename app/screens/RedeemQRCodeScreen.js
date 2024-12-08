@@ -7,10 +7,10 @@ function RedeemQRCodeScreen({ navigation, route }) {
     const dataArray = data.split('|');
     var [verifactionCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map(item => item.trim());
 
-    if (date.length == 8 || date.length == 0){
+    if (date.length === 8){
        // Alert.alert("Success", "QR Code scanned successfully!")
     }
-    else{
+    else if (date.length != 0){
         Alert.alert("Error", date)
         date = ""
         startTime = ""
@@ -25,11 +25,11 @@ function RedeemQRCodeScreen({ navigation, route }) {
             const month = dateStr.slice(0, 2);
             const day = dateStr.slice(2, 4);
             const year = dateStr.slice(4, 8);
-            return `${month}/${day}/${year}`;
+            return `${month}/${day}/${year}`;  // Use backticks for string interpolation
         }
         return dateStr; // Return original if format is incorrect
     };
-
+    
     return (
         <Screen style={styles.screen}>
             <Text style={styles.title}>Redeem QR Code</Text>

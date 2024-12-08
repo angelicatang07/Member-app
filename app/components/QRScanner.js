@@ -136,7 +136,7 @@ export default function App() {
     } else {
       navigation.navigate('RedeemQRCode', {data: "error|Invalid QR Code."})
     }
-    setScanned(false);
+    // setScanned(false);
   };
 
   if (hasPermission === null) {
@@ -145,6 +145,8 @@ export default function App() {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+  console.log('hi')
+  console.log(scanned);
 
   return (
     <View style={styles.container}>
@@ -154,6 +156,7 @@ export default function App() {
           barcodeTypes: ["qr", "pdf417"],
         }}
         style={StyleSheet.absoluteFillObject}
+        
       />
     </View>
   );
