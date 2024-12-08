@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icons from 'react-native-vector-icons/Octicons';
 import { auth, app } from '../navigation/firebase';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import CalendarScreen from '../screens/CalendarScreen';
 import AdminScreen from '../screens/AdminScreen';
@@ -63,16 +64,16 @@ const AppNavigator = () => {
         title: '',
       }}
     />
-      <Tab.Screen
-      name="RedeemQRCode"
-      component={RedeemQRCodeScreen}
-      options={{
-        tabBarIcon: ({ size }) => (
-          <Icons name="calendar" size={size} color={'#fff'} />
-        ),
-        title: '',
-      }}
-    />
+  <Tab.Screen
+    name="RedeemQRCode"
+    component={RedeemQRCodeScreen}
+    options={{
+      tabBarIcon: ({ size }) => (
+        <FontAwesome name="qrcode" size={size} color="#fff" />  // Using FontAwesome's 'qrcode' icon
+      ),
+      title: '',
+    }}
+  />
     {isAdmin && (
       <Tab.Screen
         name="AdminPage"
