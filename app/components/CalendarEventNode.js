@@ -20,11 +20,17 @@ const CalendarNode = () => {
 
   
     // Function to fetch events from the backe
-    const fetchEvents = async (key) => {
+    const fetchEvents = async (key1, key2) => {
       try {
         const serverAddress = 'https://testrunsteme-d7epe6eubzabbpgk.eastus-01.azurewebsites.net/';
-        let response = await fetch(serverAddress + key);
-        const data = await response.json();
+        let response1 = await fetch(serverAddress + key1);
+        const data1 = await response1.json();
+        let response2 = await fetch(serverAddress + key2);
+        const data2 = await response2.json();
+        const dataArray1 = Array.isArray(data1) ? data1 : [data1];
+        const dataArray2 = Array.isArray(data2) ? data2 : [data2];
+      
+        const data = [...dataArray1, ...dataArray2];
     
         // Filter out events with invalid date formats
         const validEvents = data.filter(event => {
@@ -43,9 +49,10 @@ const CalendarNode = () => {
     
   // Use `useEffect` to automatically fetch events when the screen loads
   useEffect(() => {
-    fetchEvents('general'); // Automatically fetch events when component mounts
-    fetchEvents('events');
-    fetchEvents('orientations');
+    fetchEvents('meetings', 'general'); 
+    // fetchEvents('general'); 
+    // fetchEvents('events');
+    // fetchEvents('orientations');
 
     const checkAdminStatus = async () => {
       const adminStatus = await adminCheck();
@@ -70,21 +77,13 @@ const CalendarNode = () => {
     const dateParts = unformattedDate.split('T')[0].split('-');
     const timeParts = unformattedDate.split('T')[1]?.split('-')[0]?.split(':');
   
-    // Check if date and time parts are valid
     if (dateParts.length < 3 || !timeParts || timeParts.length < 3) {
       return {};
     }
   
     const isPM = timeParts[0] > 12;
   
-    const data = {
-      year: dateParts[0],
-      month: dateParts[1],
-      monthName: months[parseInt(dateParts[1]) - 1],
-      day: dateParts[2],
-      hour: isPM ? timeParts[0] - 12 : timeParts[0],
-      minute: timeParts[1],
-      second: timeParts[2],
+    return {
       year: dateParts[0],
       month: dateParts[1],
       monthName: months[parseInt(dateParts[1]) - 1],
@@ -94,11 +93,7 @@ const CalendarNode = () => {
       second: timeParts[2],
       amPM: isPM ? 'PM' : 'AM',
     };
-  
-  
-    return data;
   };
-  
 
   
 
@@ -128,6 +123,7 @@ const CalendarNode = () => {
   
       // Request permission to access media library
       const permission = await MediaLibrary.requestPermissionsAsync();
+      
       if (permission.granted) {
         await MediaLibrary.saveToLibraryAsync(uri);
         alert('QR code image saved to your library!');
@@ -210,7 +206,7 @@ const CalendarNode = () => {
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
-                      value={"A2k7X9wz|05042008|4:45|6:00|100|Test Event 1|3"} // it's hardcoded for now
+                      value={`A2k7X9wz|${eventStartTime.day}${eventStartTime.month}${eventStartTime.year}|${eventStartTime.hour}:${eventStartTime.minute} ${eventStartTime.amPM}|${eventEndTime.hour}:${eventEndTime.minute} ${eventEndTime.amPM}|${(selectedEvent.description.match(/Points:\s*(\d+)/)?.[1] ?? 0)}|${selectedEvent.summary}|${(selectedEvent.description.match(/Times_Redeemable:\s*([\w\s]+)/)?.[1] ?? "Unlimited")}`}
                       size={150}
                     />
                   </View>

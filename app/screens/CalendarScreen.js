@@ -117,6 +117,7 @@ const CalendarScreen = ({ navigation }) => {
       <View style={[styles.root, {height: height}, {position: 'absolute'}]}>
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.header}>{"Calendar"}</Text>
+        
         <View>
           <CalendarProvider date="" style={{maxHeight: 340}}>
             <CalendarList
@@ -230,6 +231,7 @@ const CalendarScreen = ({ navigation }) => {
             />
           </CalendarProvider>
         </View>        
+        
         <Text style={styles.header}>{"Upcoming Events"}</Text>
         <CalendarNode />
       </View>
