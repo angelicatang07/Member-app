@@ -6,7 +6,7 @@ function RedeemQRCodeScreen({ navigation, route }) {
     const { data } = route.params || { data: "||||" }; 
     const dataArray = data.split('|');
     var [verifactionCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map(item => item.trim());
-
+    
     if (date.length === 8){
        // Alert.alert("Success", "QR Code scanned successfully!")
     }
@@ -20,16 +20,42 @@ function RedeemQRCodeScreen({ navigation, route }) {
         timesRedeemable = ""
     }
 
-    const formatDate = (dateStr) => {
-        if (dateStr.length === 8) {
-            const month = dateStr.slice(0, 2);
-            const day = dateStr.slice(2, 4);
-            const year = dateStr.slice(4, 8);
-            return `${month}/${day}/${year}`;  // Use backticks for string interpolation
+    const getOrdinalSuffix = (day) => {
+        if (day % 10 === 1 && day % 100 !== 11) return "st";
+        if (day % 10 === 2 && day % 100 !== 12) return "nd";
+        if (day % 10 === 3 && day % 100 !== 13) return "rd";
+        return "th";
+      };
+      
+      // Function to convert the date string to the desired format
+      const formatDate = (dateStr) => {
+        if(dateStr.length != 8){
+            return "";   // this will occur when the user first arrives at the screen
         }
-        return dateStr; // Return original if format is incorrect
-    };
-    
+        const day = dateStr.slice(0, 2)
+        const month = dateStr.slice(2, 4)
+        const year = dateStr.slice(4, 8)
+
+        const monthNames = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+      
+        const monthName = monthNames[month - 1]; // Get the month name
+        const ordinalSuffix = getOrdinalSuffix(day); // Get the ordinal suffix
+        return `${monthName} ${day}${ordinalSuffix}, ${year}`;
+      };
+      
     return (
         <Screen style={styles.screen}>
             <Text style={styles.title}>Redeem QR Code</Text>

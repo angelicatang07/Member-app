@@ -87,10 +87,12 @@ export default function App() {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true); // Prevent further scans immediately
-
     // we take the QR Code data and parse it
     const dataArray = data.split("|");
-    const [verificationCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map((item) => item.trim());
+    let [verificationCode, date, startTime, endTime, points, eventName, timesRedeemable] = dataArray.map((item) => item.trim());
+    if(timesRedeemable === "Unlimited"){
+      timesRedeemable = 999999;
+    }
 
     const eventsCollectionRef = collection(doc(db, "users", userId), "Events");
     const eventsSnapshot = await getDocs(eventsCollectionRef);
@@ -118,7 +120,6 @@ export default function App() {
 
     // this sees how many times the event being scanned is already in firebase by checking how many times it's in the aray
     const timesInArray = eventNamesArray.filter((item) => item === eventName).length;
-
     // if the code is valid, timesInArray is less than timesRedeemable, and the event is not in the array
     if (verificationCode === "A2k7X9wz" && timesInArray < parseInt(timesRedeemable, 10) && !eventExists) {
       await addEvent(userId, points, eventWithTime);
@@ -145,8 +146,6 @@ export default function App() {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
-  console.log('hi')
-  console.log(scanned);
 
   return (
     <View style={styles.container}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, Alert } from 'react-native';
 import { auth, app } from '../navigation/firebase';
 import { doc, getFirestore, setDoc, getDoc } from 'firebase/firestore';
 
@@ -75,8 +75,11 @@ function EditProfileScreen(props) {
 async function verifyAdminCode(code) {
   const adminCodeDoc = await getDoc(doc(db, `RoleCodes/Admin`));
   const adminCode = adminCodeDoc.data().code;
-  if (adminCode !== code) return;
-  
+  if (adminCode !== code){
+    Alert.alert("Invalid code. Note that the code is case-sensitive.")
+    return;
+  }
+  Alert.alert("You are now an admin!")
   await setDoc(doc(db, `users/${auth.currentUser.uid}`), {
     role: 'admin'
   });

@@ -9,7 +9,8 @@ import AdminScreen from '../screens/AdminScreen';
 import ChallengesNavigator from '../navigation/ChallengesNavigator';
 import DashboardNavigator from './DashboardNavigator';
 import SocialsScreen from '../screens/SocialsScreen';
-import RedeemQRCodeScreen from '../screens/RedeemQRCodeScreen';
+// import RedeemQRCodeScreen from '../screens/RedeemQRCodeScreen';
+import RedeemQRCodeNavigator from './RedeemQRCodeNavigator';
 
 import adminCheck from '../components/AdminCheck';
 
@@ -65,8 +66,8 @@ const AppNavigator = () => {
       }}
     />
   <Tab.Screen
-    name="RedeemQRCode"
-    component={RedeemQRCodeScreen}
+    name="RedeemQRCodeNavigator"
+    component={RedeemQRCodeNavigator}
     options={{
       tabBarIcon: ({ size }) => (
         <FontAwesome name="qrcode" size={size} color="#fff" />  // Using FontAwesome's 'qrcode' icon
