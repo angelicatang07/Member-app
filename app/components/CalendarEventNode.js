@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, ActivityIndicator, Modal, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, Modal, FlatList, StyleSheet, TouchableOpacity, findNodeHandle } from 'react-native';
 import QRCode from 'react-native-qrcode-svg'; // Import the QRCode component
 import adminCheck from '../components/AdminCheck';
 import { captureRef } from 'react-native-view-shot';
@@ -65,12 +65,12 @@ const CalendarNode = () => {
   
 
   const dateFormat = (unformattedDate) => {
+    // unformatted date looks like 2025-01-26T17:00:00-06:00 - this is CST
     if (!unformattedDate) {
       return "error"; // Return an empty object to prevent further errors
     }
   
     const months = [
-      'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
       'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
     ];
   
@@ -81,21 +81,77 @@ const CalendarNode = () => {
       return {};
     }
   
-    const isPM = timeParts[0] > 12;
+    // parse the input
+    const [year, month, day] = dateParts.map(Number);
+    const [hour, minute, second] = timeParts.map(Number);
+  
+    const inputDate = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    const isDST = isDateInDST(inputDate); // determine if it's DST
+    const offset = isDST ? 5 : 6; // CDT (UTC-5) or CST (UTC-6)
+  
+    // Convert to UTC with the appropriate offset
+    const utcDate = new Date(Date.UTC(year, month - 1, day, hour + offset, minute, second));
+  
+    // Convert UTC time to the user's local timezone
+    const localDate = new Date(utcDate);
+  
+  
+    // Extract local time components
+    const localYear = localDate.getFullYear();
+    const localMonth = localDate.getMonth() + 1; // Months are 0-indexed
+    const localDay = localDate.getDate();
+    const localHour = localDate.getHours();
+    const localMinute = localDate.getMinutes();
+    const localSecond = localDate.getSeconds();
+  
+    const isPM = localHour >= 12;
+    const formattedHour = isPM ? localHour - 12 : localHour;
+    const displayHour = formattedHour === 0 ? 12 : formattedHour; // Adjust for 12-hour clock
   
     return {
-      year: dateParts[0],
-      month: dateParts[1],
-      monthName: months[parseInt(dateParts[1]) - 1],
-      day: dateParts[2],
-      hour: isPM ? timeParts[0] - 12 : timeParts[0],
-      minute: timeParts[1],
-      second: timeParts[2],
+      year: localYear,
+      month: localMonth.toString().padStart(2, '0'),
+      monthName: months[localMonth - 1],
+      day: localDay.toString().padStart(2, '0'),
+      hour: displayHour,
+      minute: localMinute.toString().padStart(2, '0'),
+      second: localSecond.toString().padStart(2, '0'),
       amPM: isPM ? 'PM' : 'AM',
     };
   };
-
   
+  const isDateInDST = (date) => {
+    // DST is second sunday in March to first Sunday in November in the US
+    // If the US gov changes DST policy, this may have to be changed
+    // Also, there may be some issues with the transition period
+
+    const year = date.getFullYear();
+  
+    // Second Sunday in March
+    const marchStart = new Date(Date.UTC(year, 2, 1)); // March 1st
+    const marchDSTStart = new Date(
+      Date.UTC(
+        year,
+        2,
+        1 + (7 - marchStart.getUTCDay()) % 7 + 7, // Second Sunday in March
+        2, // 2 AM UTC. Note that locally, it will happen a few hours later (about 8 AM UTC in CST)
+      )
+    );
+  
+    // First Sunday in November
+    const novemberStart = new Date(Date.UTC(year, 10, 1)); // November 1st
+    const novemberDSTEnd = new Date(
+      Date.UTC(
+        year,
+        10,
+        1 + (7 - novemberStart.getUTCDay()) % 7, // First Sunday in November
+        2, // 2 AM UTC. Note that locally, it will happen a few hours later (about 8 AM UTC in CST)
+      )
+    );
+  
+    // Check if the date falls within the DST period
+    return date >= marchDSTStart && date < novemberDSTEnd;
+  };
 
   const openModal = (event, eventStart, eventEnd) => {
     setSelectedEvent(event);
@@ -116,14 +172,18 @@ const CalendarNode = () => {
   const handleCapture = async () => {
     try {
       // Capture QR code as an image
+     // console.log(qrCodeRef.current)
+      // const tag = findNodeHandle(qrCodeRef.current);
+      console.log('React tag:', tag); // This will log the React tag (e.g., 1348)
       const uri = await captureRef(qrCodeRef.current, {
         format: 'png',
         quality: 0.8,
       });
+      
+     // const uri = "https://picsum.photos/200"
   
       // Request permission to access media library
       const permission = await MediaLibrary.requestPermissionsAsync();
-      
       if (permission.granted) {
         await MediaLibrary.saveToLibraryAsync(uri);
         alert('QR code image saved to your library!');
@@ -206,7 +266,7 @@ const CalendarNode = () => {
                 {qrVisible && selectedEvent && (
                   <View ref={qrCodeRef} style={styles.qrContainer}>
                     <QRCode
-                      value={`A2k7X9wz|${eventStartTime.day}${eventStartTime.month}${eventStartTime.year}|${eventStartTime.hour}:${eventStartTime.minute} ${eventStartTime.amPM}|${eventEndTime.hour}:${eventEndTime.minute} ${eventEndTime.amPM}|${(selectedEvent.description.match(/Points:\s*(\d+)/)?.[1] ?? 0)}|${selectedEvent.summary}|${(selectedEvent.description.match(/Times_Redeemable:\s*([\w\s]+)/)?.[1] ?? "Unlimited")}`}
+                      value={`A2k7X9wz|${eventStartTime.day}${eventStartTime.month}${eventStartTime.year}|${eventStartTime.hour}:${eventStartTime.minute} ${eventStartTime.amPM}|${eventEndTime.hour}:${eventEndTime.minute} ${eventEndTime.amPM}|${(selectedEvent.description?.match(/Points:\s*(\d+)/)?.[1] ?? 0)}|${selectedEvent.summary}|${(selectedEvent.description?.match(/Times_Redeemable:\s*([\w\s]+)/)?.[1] ?? "Unlimited")}`}
                       size={150}
                     />
                   </View>
