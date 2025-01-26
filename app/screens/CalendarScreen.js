@@ -115,6 +115,7 @@ const CalendarScreen = ({ navigation }) => {
 
       
       <View style={[styles.root, {height: height}, {position: 'absolute'}]}>
+        
         <Text style={styles.name}>{name}</Text>
         <Text style={styles.header}>{"Calendar"}</Text>
         
