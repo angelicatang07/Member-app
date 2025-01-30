@@ -16,7 +16,7 @@ const CalendarNode = () => {
   const [isAdmin, setIsAdmin] = useState(null);
   const [qrVisible, setQrVisible] = useState(false); // State to control QR code visibility
   const [showHideQRCode, setShowHideQRCode] = useState("Show QR Code")
-  const qrCodeRef = useRef();
+  const qrCodeRef = useRef(null);
 
   
     // Function to fetch events from the backe
@@ -172,15 +172,14 @@ const CalendarNode = () => {
   const handleCapture = async () => {
     try {
       // Capture QR code as an image
-     // console.log(qrCodeRef.current)
+      // console.log(qrCodeRef.current)
       // const tag = findNodeHandle(qrCodeRef.current);
-      console.log('React tag:', tag); // This will log the React tag (e.g., 1348)
       const uri = await captureRef(qrCodeRef.current, {
         format: 'png',
-        quality: 0.8,
+        quality: 1,
       });
       
-     // const uri = "https://picsum.photos/200"
+      // const uri = "https://picsum.photos/200"
   
       // Request permission to access media library
       const permission = await MediaLibrary.requestPermissionsAsync();
@@ -264,7 +263,7 @@ const CalendarNode = () => {
                 </TouchableOpacity>
                 }
                 {qrVisible && selectedEvent && (
-                  <View ref={qrCodeRef} style={styles.qrContainer}>
+                  <View ref={qrCodeRef} collapsable={false} style={styles.qrContainer}>
                     <QRCode
                       value={`A2k7X9wz|${eventStartTime.day}${eventStartTime.month}${eventStartTime.year}|${eventStartTime.hour}:${eventStartTime.minute} ${eventStartTime.amPM}|${eventEndTime.hour}:${eventEndTime.minute} ${eventEndTime.amPM}|${(selectedEvent.description?.match(/Points:\s*(\d+)/)?.[1] ?? 0)}|${selectedEvent.summary}|${(selectedEvent.description?.match(/Times_Redeemable:\s*([\w\s]+)/)?.[1] ?? "Unlimited")}`}
                       size={150}
