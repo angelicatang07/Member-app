@@ -367,6 +367,8 @@ const styles = StyleSheet.create({
     height: 100,
     margin: 5,
     justifyContent: 'center',
+    flex: 1, 
+    flexWrap: 'wrap'
   },
   buttonText: {
     textAlign: 'center', // Center the text
